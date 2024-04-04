@@ -40,7 +40,7 @@ Frontend: JavaScript, HTML, CSS
 
 Backend: PHP, MySQL
 
-Graphics: Assets provided by Kenny (https://kenney.nl/)
+Graphics: Assets provided by Kenny (https://kenney.nl/), Avery (https://forums.rpgmakerweb.com/index.php?members/avery.5315/), and RPG Maker MV
 
 Map Editing: Tiled (https://thorbjorn.itch.io/tiled)
 
