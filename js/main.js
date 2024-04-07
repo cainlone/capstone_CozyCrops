@@ -6,7 +6,7 @@ let map = {
 }
 
 map.jsonPath = 'js/sample.json';
-let canvas = document.getElementById(map.jsonPath);
+let canvas = document.getElementById('gameCanvas');
 let ctx = canvas.getContext('2d');
 
 let tileLayerArray = [];
@@ -140,28 +140,28 @@ function update(event) {
   let yOrX;
   let upOrDown;
   switch(event.key) {
-    case 'ArrowUp':
+    case 'ArrowUp', 'w':
       if(!(targetPosition.y <= 0)) {
         targetPosition.y -= (TILE_SIZE);
         yOrX = true;
         upOrDown = false;
       }
       break;
-    case 'ArrowDown':
+    case 'ArrowDown', 's':
       if(!(targetPosition.y < 0 || (targetPosition.y + 48) >= canvas.height)) {
         targetPosition.y += (TILE_SIZE);
         yOrX = true;
         upOrDown = true;
       }
       break;
-    case 'ArrowLeft':
+    case 'ArrowLeft', 'a':
       if(!(targetPosition.x <= 0)) {
         targetPosition.x -= (TILE_SIZE);
         yOrX = false;
         upOrDown = false;
       }
       break;
-    case 'ArrowRight':
+    case 'ArrowRight', 'd':
       if(!(targetPosition.x < 0 || (targetPosition.x + 48) >= canvas.width)) {
         targetPosition.x += (TILE_SIZE);
         yOrX = false;
