@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Account</title>
+
+  <link rel="stylesheet" href="css/createAccount.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  <div>
+    <h2>Create Account</h2>
+    <form id="createAccountForm" action="" method="post">
+
+    <label for="fName">First Name</label><br>
+    <input type="text" name="fName" id="fName" required><br>
+
+    <label for="lName">Last Name</label><br>
+    <input type="text" name="lName" id="lName" required><br>
+
+    <label for="newUsername">Username</label><br>
+    <input type="text" name="newUsername" id="newUsername" required><br>
+
+    <label for="newPassword">Password</label><br>
+    <input type="password" name="newPassword" id="newPassword" required><br>
+
+    <label for="dob">Date of Birth</label><br>
+    <input type="date" name="dob" id="dob" required><br><br>
+
+    <button type="submit" class="createAccountButton">Create Account</button>
+
+    <!-- <button class="createAccountButton" onclick="window.location.href = 'login.html';">Create Account</button> -->
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("createAccountForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // prevent default submission
+
+        // brings user back to login.html to login again to start saving progress
+        window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

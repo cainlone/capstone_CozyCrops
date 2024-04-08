@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="css/login.css">
+  <!-- <label for="stylesheet" href="css/main.css"></label> -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div>
+    <h2>Login</h2>
+    <form id="loginForm" action="" method="post"> 
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username" required><br>
+
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password" required><br>
+
+      <input type="submit" class="submitButton" value="Login">
+
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault(); 
+
+      //get username and password from form
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      //placeholder
+      //eventually change this part so info will be sent to sever-side
+      if(username === "your_username" && password === "your_password") {
+
+        //successful login
+        //not sure where to send just yet 
+        window.location.href = "";
+      } else {
+        //failed login
+        alert("Invalid username or password. Please try again.");
+      }
+    })
+  </script>
+
+
+</body>
+</html>

@@ -140,28 +140,28 @@ function update(event) {
   let yOrX;
   let upOrDown;
   switch(event.key) {
-    case 'ArrowUp', 'w':
+    case 'ArrowUp':
       if(!(targetPosition.y <= 0)) {
         targetPosition.y -= (TILE_SIZE);
         yOrX = true;
         upOrDown = false;
       }
       break;
-    case 'ArrowDown', 's':
+    case 'ArrowDown':
       if(!(targetPosition.y < 0 || (targetPosition.y + 48) >= canvas.height)) {
         targetPosition.y += (TILE_SIZE);
         yOrX = true;
         upOrDown = true;
       }
       break;
-    case 'ArrowLeft', 'a':
+    case 'ArrowLeft':
       if(!(targetPosition.x <= 0)) {
         targetPosition.x -= (TILE_SIZE);
         yOrX = false;
         upOrDown = false;
       }
       break;
-    case 'ArrowRight', 'd':
+    case 'ArrowRight':
       if(!(targetPosition.x < 0 || (targetPosition.x + 48) >= canvas.width)) {
         targetPosition.x += (TILE_SIZE);
         yOrX = false;
