@@ -1,7 +1,13 @@
+let inventory;
+
+window.onload = function() {
+  inventory = new Inventory('inventoryCanvas');
+};
+
 let TILE_SIZE = 48;
 
 let map = {
-  jsonPath: "js/sample.json",
+  jsonPath: "js/sample2.json",
   height: 0,
   width: 0,
 };
@@ -17,9 +23,15 @@ let canvasMinHeight = 0;
 
 let tileLayerArray = [];
 let eventTileArray = [];
-let eventNumberArray = [];
-let totalEvents = 0;
 let frameDurations = [];
+let eventTileIds = [];
+let cropTiles = [];
+let cropTileOptions = [242, 234, 198, 210, 222, 235, 199, 211, 223];
+let carrotTiles = [];
+let carrotTileOptions = [242, 234, 198, 210, 222];
+let cabbageTiles = [];
+let cabbageTileOptions = [242, 235, 199, 211, 223];
+let layerThree = [];
 
 let sprite = {
   x: 0,
@@ -38,10 +50,16 @@ let mapData;
 let tilesetImages;
 let balloonImage;
 let isEvent;
-let eventTileNumber;
+let eventTileIndex;
 
-let drawCount = 0;
+let drawBalloonCount = 0;
 let drawLayerCount = 1;
+
+let cropStage = 0;
+let isCrop;
+let cropTileIndex;
+
+// Timer needs to either be paused when the game is closed meaning it needs to be saved, or the time passed between when the game is open from when it was closed needs to be calculated. When they start playing for the first time, the timer could be set to the time on their device and saved in a variable. Then be constantly setting the device time into a second variable and compare the two to see how much time has passed. The first variable will have to always stay the same even after they close and open the game. Whether or not it's their first time playing will have to be stored and retrieved. Run a check on it to decide whether or not to set the variable. If not, it must already exist, so retrieve it.
 
 function extractImageSource(tsxContent) {
   let parser = new DOMParser();
@@ -69,6 +87,8 @@ function drawMap() {
 
 function drawLayer(layer) {
   layer.data.forEach((tileIndex, index) => {
+    let tileLayerId = layer.id;
+
     if (tileIndex !== 0 && layer.visible == true) {
       let tilesetIndex = findTilesetIndex(tileIndex, mapData.tilesets);
       let tileset = mapData.tilesets[tilesetIndex];
@@ -82,25 +102,29 @@ function drawLayer(layer) {
         ) * TILE_SIZE;
       let destX = (index % layer.width) * TILE_SIZE;
       let destY = Math.floor(index / layer.width) * TILE_SIZE;
-      let tileLayerId = layer.id;
 
       if (tileLayerId !== 5 && tileLayerId !== 6) {
         tileLayerArray[index] = tileLayerId;
+      }
+
+      if(tileLayerId == 3) {
+        eventTileIds[index] = layer.data[index];
+        if(cropTileOptions.includes(eventTileIds[index])) {
+          isCrop = true;
+
+        } else {
+          isCrop = false;
+        }
+
+        cropTiles[index] = isCrop;
+      } else if (tileLayerId != 5 && tileLayerId != 6) {
+        eventTileIds[index] = 0;
       }
 
       if (tileLayerId === 5) {
         eventTileArray[index] = true;
       } else {
         eventTileArray[index] = false;
-      }
-
-      if (drawLayerCount == 1 && eventTileArray[index]) {
-        totalEvents += 1;
-        eventNumberArray[index] = totalEvents;
-      } else {
-        if (drawLayerCount == 1) {
-          eventNumberArray[index] = 0;
-        }
       }
 
       ctx.drawImage(
@@ -115,6 +139,16 @@ function drawLayer(layer) {
         TILE_SIZE
       );
     }
+
+    if(drawLayerCount == 1 && tileLayerId == 3) {
+      layerThree = layer.data;
+    }
+
+    if (tileLayerId == 5 && !eventTileArray[index]) {
+      eventTileIds[index] = 0
+      cropTiles[index] = false;
+    }
+
   });
 }
 
@@ -201,8 +235,6 @@ function update(event) {
   let tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
   let tileIndexY = Math.floor(targetPosition.y / TILE_SIZE);
 
-  console.log(event.key);
-
   switch (event.key) {
     case "ArrowUp":
     case "w":
@@ -278,7 +310,7 @@ function update(event) {
       break;
     case "Enter":
       if (isEvent) {
-        eventPicker(eventTileNumber);
+        eventPicker(eventTileIndex);
       }
   }
 
@@ -308,29 +340,23 @@ function update(event) {
     (getEventTile(tileIndexX + 1, tileIndexY) && facing == "right") ||
     (getEventTile(tileIndexX, tileIndexY + 1) && facing == "down")
   ) {
-    if (drawCount == 0) {
+    if (drawBalloonCount == 0) {
       drawBalloon();
-      drawCount = 1;
+      drawBalloonCount = 1;
     }
 
     balloon.x = targetPosition.x;
     balloon.y = targetPosition.y - TILE_SIZE;
 
     isEvent = true;
-    if (getEventNumber(tileIndexX - 1, tileIndexY) != 0 && facing == "left") {
-      eventTileNumber = getEventNumber(tileIndexX - 1, tileIndexY);
-    } else if (
-      getEventNumber(tileIndexX, tileIndexY - 1) != 0 &&
-      facing == "up"
-    ) {
-      eventTileNumber = getEventNumber(tileIndexX, tileIndexY - 1);
-    } else if (
-      getEventNumber(tileIndexX + 1, tileIndexY) != 0 &&
-      facing == "right"
-    ) {
-      eventTileNumber = getEventNumber(tileIndexX + 1, tileIndexY);
+    if (facing == "left") {
+      eventTileIndex = tileIndexY * mapData.width + (tileIndexX - 1);
+    } else if (facing == "up") {
+      eventTileIndex = (tileIndexY - 1) * mapData.width + tileIndexX;
+    } else if (facing == "right") {
+      eventTileIndex = tileIndexY * mapData.width + (tileIndexX + 1);
     } else {
-      eventTileNumber = getEventNumber(tileIndexX, tileIndexY + 1);
+      eventTileIndex = (tileIndexY + 1) * mapData.width + tileIndexX;
     }
 
   } else {
@@ -351,9 +377,20 @@ function getEventTile(tileIndexX, tileIndexY) {
   return eventTileArray[tileIndex];
 }
 
-function getEventNumber(tileIndexX, tileIndexY) {
-  let tileIndex = tileIndexY * mapData.width + tileIndexX;
-  return eventNumberArray[tileIndex];
+function isCropTile(tileIndex) {
+  return cropTiles[tileIndex];
+}
+
+function getCropTileId(tileIndex) {
+  return eventTileIds[tileIndex];
+}
+
+function changeTile(tileIndex, newTileId) {
+  mapData.layers.forEach((layer) => {
+    if(layer.id == 3) {
+      layer.data[tileIndex] = newTileId;
+    }
+  });
 }
 
 function drawSprite() {
@@ -393,6 +430,7 @@ function drawBalloon() {
 }
 
 function gameLoop() {
+  currentTime = Date.now();
   drawMap();
   drawLayerCount = 0;
   window.addEventListener("keydown", update);
@@ -400,16 +438,72 @@ function gameLoop() {
 }
 
 // This will obviously grow as we add events.
-function eventPicker(eventNumber) {
-  switch (eventNumber) {
-    case 1:
-      signEvent();
+function eventPicker(tileIndex) {
+  let startTime;
+
+  cropTileIndex = getCropTileId(tileIndex);
+
+  // eventually change "inventory.activeItem == 0" to something like "inventory.activeItemName == 'seeds'"
+
+  if(isCropTile(tileIndex)) {
+    if(cropTileIndex == 242 && inventory.activeItem == 0) {
+      plantCarrot(tileIndex);
+    } else if(cropTileIndex == 242 && inventory.activeItem == 1) {
+      plantCabbage(tileIndex);
+    } else if(cropTileIndex == 234 && inventory.activeItem == 1) {
+      startTime = Date.now();
+      checkTime(startTime, "waterCarrot", tileIndex);
+      // waterCarrot(tileIndex);
+    } else if(cropTileIndex == 235 && inventory.activeItem == 1) {
+      startTime = Date.now();
+      checkTime(startTime, "waterCabbage", tileIndex);
+    }
+  } else {
+    signEvent();
   }
 }
 
 // For simple events like this, we can probably put the code for it in the switch case above instead of in their own functions. This is just to show what we'd do for more complicated functions.
 function signEvent() {
   console.log("work please");
+  console.log(layerThree)
+}
+
+function plantCarrot(tileIndex) {
+  console.log(tileIndex)
+  changeTile(tileIndex, 234);
+}
+
+function plantCabbage(tileIndex) {
+  changeTile(tileIndex, 235)
+}
+
+function waterCarrot(tileIndex) {
+  changeTile(tileIndex, 198);
+}
+
+function waterCabbage(tileIndex) {
+  changeTile(tileIndex, 199);
+}
+
+function checkTime(startTime, name, tileIndex) {
+  let currentTime = Date.now();
+  console.log("the fuck " + startTime);
+  console.log("the hell " + currentTime - startTime)
+
+  if(currentTime - startTime >= 5000) {
+    if(name === "waterCarrot") {
+      waterCarrot(tileIndex);
+    } else if(name === "waterCabbage") {
+      waterCabbage(tileIndex);
+    }
+    cancelAnimationFrame(checkTime);
+  } else {
+    requestAnimationFrame(function() {
+      checkTime(startTime, name, tileIndex)
+    })
+  }
+
 }
 
 fetchJson(map.jsonPath);
