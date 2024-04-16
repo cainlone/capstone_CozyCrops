@@ -54,6 +54,7 @@ let eventTileIndex;
 
 let drawBalloonCount = 0;
 let drawLayerCount = 1;
+let isPaused = true;
 
 let cropStage = 0;
 let isCrop;
@@ -197,7 +198,7 @@ function fetchJson(jsonPath) {
               balloonImage = new Image();
               balloonImage.src = imageSource;
               balloonImage.onload = () => {
-                gameLoop();
+                startMenu();
               };
             })
             .catch((error) =>
@@ -430,11 +431,13 @@ function drawBalloon() {
 }
 
 function gameLoop() {
-  currentTime = Date.now();
-  drawMap();
-  drawLayerCount = 0;
-  window.addEventListener("keydown", update);
-  requestAnimationFrame(gameLoop);
+  if (!isPaused) {
+    currentTime = Date.now();
+    drawMap();
+    drawLayerCount = 0;
+    window.addEventListener("keydown", update);
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 // This will obviously grow as we add events.
