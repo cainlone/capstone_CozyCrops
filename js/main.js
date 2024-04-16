@@ -51,6 +51,7 @@ let tilesetImages;
 let balloonImage;
 let isEvent;
 let eventTileIndex;
+let facing;
 
 let drawBalloonCount = 0;
 let drawLayerCount = 1;
@@ -232,7 +233,6 @@ function updatePosition() {
 function update(event) {
   let yOrX;
   let upOrDown;
-  let facing;
   let tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
   let tileIndexY = Math.floor(targetPosition.y / TILE_SIZE);
 
@@ -424,7 +424,11 @@ function drawBalloon() {
       TILE_SIZE
     );
 
-    requestAnimationFrame(animate);
+    if(isPaused) {
+      cancelAnimationFrame(animate);
+    } else {
+      requestAnimationFrame(animate);
+    }
   }
 
   animate();
@@ -467,12 +471,10 @@ function eventPicker(tileIndex) {
 
 // For simple events like this, we can probably put the code for it in the switch case above instead of in their own functions. This is just to show what we'd do for more complicated functions.
 function signEvent() {
-  console.log("work please");
-  console.log(layerThree)
+
 }
 
 function plantCarrot(tileIndex) {
-  console.log(tileIndex)
   changeTile(tileIndex, 234);
 }
 
@@ -490,8 +492,6 @@ function waterCabbage(tileIndex) {
 
 function checkTime(startTime, name, tileIndex) {
   let currentTime = Date.now();
-  console.log("the fuck " + startTime);
-  console.log("the hell " + currentTime - startTime)
 
   if(currentTime - startTime >= 5000) {
     if(name === "waterCarrot") {

@@ -75,6 +75,7 @@ function resumeGame() {
   document.getElementById("pauseBtn").onclick = pauseGame;
 
   ctx.restore();
+  drawBalloonCount = 0;
   startGame();
 }
 
