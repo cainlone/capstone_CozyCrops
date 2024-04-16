@@ -164,7 +164,7 @@ function fetchJson(jsonPath) {
               balloonImage = new Image();
               balloonImage.src = imageSource;
               balloonImage.onload = () => {
-                startGame();
+                startMenu();
               };
             })
             .catch((error) =>

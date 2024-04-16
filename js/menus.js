@@ -1,5 +1,6 @@
 let BUTTON_WIDTH = TILE_SIZE * 3;
 
+// Pause menu
 let pauseScreen = new Image();
 let greenActive = new Image();
 let redActive = new Image();
@@ -8,7 +9,29 @@ pauseScreen.src = pauseImgStr + "pause_menu.png";
 greenActive.src = pauseImgStr + "green_active.png";
 redActive.src = pauseImgStr + "red_active.png";
 
+// Start menu
+let background = new Image();
+let background2 = new Image();
+let blueActive = new Image();
+let startImgStr = "images/start_menu/";
+background.src = startImgStr + "bg.png";
+background2.src = startImgStr + "bg2.png";
+blueActive.src = startImgStr + "blue_active.png";
+
+// html ui elements
+let pauseBtn = document.getElementById("pauseBtn");
+let invCanvas = document.getElementById("inventoryCanvas");
+
 let buttons = [
+  {
+    name: "Play Game!",
+    y: TILE_SIZE * 8,
+    x: TILE_SIZE * 5,
+    hover: false,
+    hoverImg: blueActive,
+    width: TILE_SIZE * 7,
+    height: TILE_SIZE * 2,
+  },
   {
     name: "Save",
     y: TILE_SIZE * 4,
@@ -56,6 +79,13 @@ function resumeGame() {
 }
 
 function startGame() {
+  canvas.removeEventListener("click", onClickStartMenu);
+  canvas.removeEventListener("mousemove", onHoverStartMenu);
+
+  // show ui elements
+  pauseBtn.style.display = "block";
+  invCanvas.style.display = "block";
+
   if (isPaused) {
     isPaused = false;
     gameLoop();
@@ -68,11 +98,52 @@ function saveGame() {
 }
 
 function startMenu() {
-  // go back to start menu
+  // hide ui elements
+  pauseBtn.style.display = "none";
+  invCanvas.style.display = "none";
+
+  // go to start menu
   drawStartMenu();
+
+  // Add event listeners for start button
+  canvas.addEventListener("click", onClickStartMenu);
+  canvas.addEventListener("mousemove", onHoverStartMenu);
 }
 
-function drawStartMenu() {}
+function drawStartMenu() {
+  ctx.drawImage(background, 0, 0);
+  ctx.drawImage(background2, 0, 0);
+
+  if (currentHover) {
+    ctx.drawImage(currentHover.hoverImg, currentHover.x, currentHover.y);
+  }
+
+  // Text for buttons
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = '36px "Press Start 2P"';
+  ctx.fillText("Cozy Crops", TILE_SIZE * 8.5, TILE_SIZE * 1.5);
+  ctx.font = '16px "Press Start 2P"';
+  ctx.fillText("Play Game!", TILE_SIZE * 8.5, TILE_SIZE * 8);
+}
+
+function onHoverStartMenu(event) {
+  let rect = canvas.getBoundingClientRect();
+  let mouseX = event.clientX - rect.left;
+  let mouseY = event.clientY - rect.top;
+  
+  if (mouseX > TILE_SIZE * 5 && mouseX < TILE_SIZE * 13 &&
+      mouseY > TILE_SIZE * 7 && mouseY < TILE_SIZE * 9) {
+    currentHover = buttons[0];
+  } else {
+    currentHover = null;
+  }
+}
+
+function onClickStartMenu(event) {
+  startGame();
+}
 
 function drawPauseScreen() {
   ctx.drawImage(pauseScreen, TILE_SIZE * 4, TILE_SIZE * 3);
