@@ -85,7 +85,3 @@ class Inventory {
     }
   }
 }
-
-window.onload = function() {
-  const inventory = new Inventory('inventoryCanvas');
-};
