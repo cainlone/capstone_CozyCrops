@@ -42,6 +42,7 @@ let eventTileNumber;
 
 let drawCount = 0;
 let drawLayerCount = 1;
+let isPaused = true;
 
 function extractImageSource(tsxContent) {
   let parser = new DOMParser();
@@ -163,7 +164,7 @@ function fetchJson(jsonPath) {
               balloonImage = new Image();
               balloonImage.src = imageSource;
               balloonImage.onload = () => {
-                gameLoop();
+                startGame();
               };
             })
             .catch((error) =>
@@ -393,10 +394,12 @@ function drawBalloon() {
 }
 
 function gameLoop() {
-  drawMap();
-  drawLayerCount = 0;
-  window.addEventListener("keydown", update);
-  requestAnimationFrame(gameLoop);
+  if (!isPaused) {
+    drawMap();
+    drawLayerCount = 0;
+    window.addEventListener("keydown", update);
+    requestAnimationFrame(gameLoop);
+  }
 }
 
 // This will obviously grow as we add events.
