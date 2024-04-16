@@ -25,7 +25,7 @@ let invCanvas = document.getElementById("inventoryCanvas");
 let buttons = [
   {
     name: "Play Game!",
-    y: TILE_SIZE * 8,
+    y: TILE_SIZE * 7,
     x: TILE_SIZE * 5,
     hover: false,
     hoverImg: blueActive,
@@ -94,7 +94,7 @@ function startGame() {
 
 function saveGame() {
   // save game state
-  alert("Game saved!");
+  // alert("Game saved!");
 }
 
 function startMenu() {
@@ -124,6 +124,7 @@ function drawStartMenu() {
   ctx.textBaseline = "middle";
   ctx.font = '36px "Press Start 2P"';
   ctx.fillText("Cozy Crops", TILE_SIZE * 8.5, TILE_SIZE * 1.5);
+  if (currentHover) ctx.fillStyle = "gray";
   ctx.font = '16px "Press Start 2P"';
   ctx.fillText("Play Game!", TILE_SIZE * 8.5, TILE_SIZE * 8);
 }
@@ -133,16 +134,17 @@ function onHoverStartMenu(event) {
   let mouseX = event.clientX - rect.left;
   let mouseY = event.clientY - rect.top;
   
-  if (mouseX > TILE_SIZE * 5 && mouseX < TILE_SIZE * 13 &&
+  if (mouseX > TILE_SIZE * 5 && mouseX < TILE_SIZE * 12 &&
       mouseY > TILE_SIZE * 7 && mouseY < TILE_SIZE * 9) {
     currentHover = buttons[0];
   } else {
     currentHover = null;
   }
+  drawStartMenu();
 }
 
 function onClickStartMenu(event) {
-  startGame();
+  if (currentHover) startGame();
 }
 
 function drawPauseScreen() {
@@ -150,6 +152,7 @@ function drawPauseScreen() {
 
   // Text for buttons
   buttons.forEach((button) => {
+    if (button.name === 'Play Game!') return; // Skip the play game button (only for start menu)
     if (button.hover) {
       ctx.drawImage(button.hoverImg, button.x, button.y);
     }
@@ -206,6 +209,7 @@ function onClickPauseMenu(event) {
       } else if (button.name === 'Resume') {
         resumeGame();
       } else if (button.name === 'Exit') {
+        pauseBtn.onclick = pauseGame;
         exitGame();
       }
     }
@@ -215,7 +219,7 @@ function onClickPauseMenu(event) {
 function exitGame() {
   // save game state
   saveGame();
-  alert("Exiting game...");
+  // alert("Exiting game...");
   // go back to start menu
   startMenu();
 }
