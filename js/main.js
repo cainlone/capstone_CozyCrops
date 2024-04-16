@@ -432,7 +432,6 @@ function drawBalloon() {
 
 function gameLoop() {
   if (!isPaused) {
-    currentTime = Date.now();
     drawMap();
     drawLayerCount = 0;
     window.addEventListener("keydown", update);
