@@ -25,8 +25,8 @@ let invCanvas = document.getElementById("inventoryCanvas");
 let buttons = [
   {
     name: "Play Game!",
-    y: TILE_SIZE * 7,
-    x: TILE_SIZE * 5,
+    y: canvasMinHeight + (TILE_SIZE * 7),
+    x: canvasMinWidth + (TILE_SIZE * 5),
     hover: false,
     hoverImg: blueActive,
     width: TILE_SIZE * 7,
@@ -34,22 +34,22 @@ let buttons = [
   },
   {
     name: "Save",
-    y: TILE_SIZE * 4,
-    x: TILE_SIZE * 5,
+    y: canvasMinHeight + (TILE_SIZE * 4),
+    x: canvasMinWidth + (TILE_SIZE * 5),
     hover: false,
     hoverImg: greenActive,
   },
   {
     name: "Resume",
-    y: TILE_SIZE * 4,
-    x: TILE_SIZE * 9,
+    y: canvasMinHeight + (TILE_SIZE * 4),
+    x: canvasMinWidth + (TILE_SIZE * 9),
     hover: false,
     hoverImg: greenActive,
   },
   {
     name: "Exit",
-    y: TILE_SIZE * 6,
-    x: TILE_SIZE * 7,
+    y: canvasMinHeight + (TILE_SIZE * 6),
+    x: canvasMinWidth + (TILE_SIZE * 7),
     hover: false,
     hoverImg: redActive,
   },
@@ -112,11 +112,11 @@ function startMenu() {
 }
 
 function drawStartMenu() {
-  ctx.drawImage(background, 0, 0);
-  ctx.drawImage(background2, 0, 0);
+  ctx.drawImage(background, canvasMinWidth, canvasMinHeight);
+  ctx.drawImage(background2, canvasMinWidth, canvasMinHeight);
 
   if (currentHover) {
-    ctx.drawImage(currentHover.hoverImg, currentHover.x, currentHover.y);
+    ctx.drawImage(currentHover.hoverImg, canvasMinWidth + currentHover.x, canvasMinHeight + currentHover.y);
   }
 
   // Text for buttons
@@ -124,10 +124,10 @@ function drawStartMenu() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = '36px "Press Start 2P"';
-  ctx.fillText("Cozy Crops", TILE_SIZE * 8.5, TILE_SIZE * 1.5);
+  ctx.fillText("Cozy Crops", canvasMinWidth + (TILE_SIZE * 8.5), canvasMinHeight + (TILE_SIZE * 1.5));
   if (currentHover) ctx.fillStyle = "gray";
   ctx.font = '16px "Press Start 2P"';
-  ctx.fillText("Play Game!", TILE_SIZE * 8.5, TILE_SIZE * 8);
+  ctx.fillText("Play Game!", canvasMinWidth + (TILE_SIZE * 8.5), canvasMinHeight + (TILE_SIZE * 8));
 }
 
 function onHoverStartMenu(event) {
@@ -149,19 +149,19 @@ function onClickStartMenu(event) {
 }
 
 function drawPauseScreen() {
-  ctx.drawImage(pauseScreen, TILE_SIZE * 4, TILE_SIZE * 3);
+  ctx.drawImage(pauseScreen, canvasMinWidth + (TILE_SIZE * 4), canvasMinHeight + (TILE_SIZE * 3));
 
   // Text for buttons
   buttons.forEach((button) => {
     if (button.name === 'Play Game!') return; // Skip the play game button (only for start menu)
     if (button.hover) {
-      ctx.drawImage(button.hoverImg, button.x, button.y);
+      ctx.drawImage(button.hoverImg, canvasMinWidth + (button.x), canvasMinHeight + (button.y));
     }
     ctx.fillStyle = button.hover ? "gray" : "black"; // Change text color on hover
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = '16px "Press Start 2P"';
-    ctx.fillText(button.name, button.x + BUTTON_WIDTH / 2, button.y + TILE_SIZE / 2);
+    ctx.fillText(button.name, canvasMinWidth + (button.x + BUTTON_WIDTH / 2), canvasMinHeight + (button.y + TILE_SIZE / 2));
   });
 }
 
