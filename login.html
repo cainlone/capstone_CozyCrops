@@ -23,27 +23,7 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
-      event.preventDefault(); 
-
-      //get username and password from form
-      var username = document.getElementById("username").value;
-      var password = document.getElementById("password").value;
-
-      //placeholder
-      //eventually change this part so info will be sent to sever-side
-      if(username === "your_username" && password === "your_password") {
-
-        //successful login
-        //not sure where to send just yet 
-        window.location.href = "";
-      } else {
-        //failed login
-        alert("Invalid username or password. Please try again.");
-      }
-    })
-  </script>
+  <script src="js/user.js"></script>
 
 
 </body>
