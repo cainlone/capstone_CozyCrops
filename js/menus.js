@@ -82,6 +82,7 @@ function resumeGame() {
 function startGame() {
   canvas.removeEventListener("click", onClickStartMenu);
   canvas.removeEventListener("mousemove", onHoverStartMenu);
+  drawBalloonCount = 0;
 
   // show ui elements
   pauseBtn.style.display = "block";
@@ -145,7 +146,12 @@ function onHoverStartMenu(event) {
 }
 
 function onClickStartMenu(event) {
-  if (currentHover) startGame();
+  if (currentHover) {
+    startGame();
+
+    inventory.activeItem = 0;
+    inventory.useActiveItem();
+  }
 }
 
 function drawPauseScreen() {
@@ -220,6 +226,8 @@ function onClickPauseMenu(event) {
 function exitGame() {
   // save game state
   saveGame();
+
+  document.getElementById("currentItem").innerHTML = "";
   // alert("Exiting game...");
   // go back to start menu
   startMenu();

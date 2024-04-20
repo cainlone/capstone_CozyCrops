@@ -69,8 +69,8 @@ class Inventory {
   onClick(event) {
     if (this.hoveredItem !== -1) {
       const activeItem = this.items[this.activeItem];
-      console.log("Using item: ", activeItem.name);
       this.activeItem = this.hoveredItem;
+      this.useActiveItem();
       this.drawEmptyInventory();
     }
   }
@@ -92,13 +92,23 @@ class Inventory {
     // Check if item already exists in the inventory 
     const existingItem = this.items.find(i => i.name === item.name);
     if (existingItem) {
-      existingItem.quantity++;
+      if (existingItem.quantity >= 999) {
+        return;
+      } else {
+        existingItem.quantity++;
+      }
     } else {
       this.items.push(item);
+      if(item.quantity == 0) {
+        item.quantity++;
+      }
     }
+
+    this.drawItemsInventory();
   }
 
   remove(item) {
+    console.log(item);
     this.items = this.items.filter(i => i !== item);
   }
 
@@ -133,11 +143,20 @@ class Inventory {
       let width = TILE_SIZE * 6;
       let height = TILE_SIZE * 6;
 
-      if (item.name === "Bamboo" || item.name === "Corn") {
-        yPos += 63;
-        xPos += 50;
+      if (/*item.name === "Bamboo" || item.name === "Corn" ||*/ item.name === "Wheat") {
+        yPos += 58;
+        xPos += 49;
         width = TILE_SIZE * 4;
         height = TILE_SIZE * 4; 
+      }
+
+      if(item.name === "Cabbage") {
+        yPos -= 4;
+      }
+
+      if(item.name === "Watering Can") {
+        yPos -= 33;
+        xPos -= 4;
       }
 
       if(item.name === "RedFlower" || item.name === "PurpleFlower" || item.name === "Mushroom") {
@@ -149,9 +168,9 @@ class Inventory {
    
       this.ctx.drawImage(img, xPos, yPos, width, height);
     
-      this.ctx.fillStyle = 'white';
+      this.ctx.fillStyle = 'black';
       this.ctx.font = 'bold 12px Arial';
-      this.ctx.fillText(item.quantity.toString(), i * TILE_SIZE + 5, TILE_SIZE + 15);
+      this.ctx.fillText(item.quantity.toString(), i * TILE_SIZE + 30, TILE_SIZE - 3);
      }
     }
   }  
@@ -159,32 +178,27 @@ class Inventory {
   useActiveItem() {
     const activeItem = this.items[this.activeItem];
     if(activeItem && activeItem.quantity > 0) {
-      console.log("Using item: " , activeItem.name);
-      this.drawEmptyInventory();
+      document.getElementById("currentItem").innerHTML = activeItem.name;
+      document.getElementById("currentItem").style.left = "calc(50% + " + ((this.activeItem * 48) - 241) + "px"; 
     } else {
-      console.log("no item picked")
+      if (activeItem) {
+        this.remove(this.items[this.activeItem]);
+      }
+      document.getElementById("currentItem").innerHTML = "";
     }
+    this.drawEmptyInventory();
   }
 }
 
 //define items
-const items = [
+let items = [
+  new Item('Watering Can', '/images/wateringCan.png'),
   new Item('Carrot', '/images/crops/crop_carrot_SE.png'),
-  new Item('Melon', '/images/crops/crop_melon_SE.png'),
-  new Item('Pumpkin', '/images/crops/crop_pumpkin_SW.png'),
-  new Item('Turnip', '/images/crops/crop_turnip_NE.png'),
-  new Item('Bamboo', '/images/crops/crops_bambooStageB_NW.png'),
-  new Item('Corn', '/images/crops/crops_cornStageD_SE.png'),
-  new Item('Wheat', '/images/crops/crops_wheatStageB_SW.png'),
-  new Item('PurpleFlower', '/images/crops/flower_purpleA_SW.png'),
-  new Item('RedFlower', '/images/crops/flower_redA_SE.png'),
-  new Item('Mushroom', '/images/crops/mushroom_redGroup_NW.png'),
+  new Item('Cabbage', '/images/crops/crop_cabbage.png'),
+  new Item('Grape', '/images/crops/crop_grape.png'),
+  new Item('Wheat', '/images/crops/crop_wheat.png'),
+  // new Item('Corn', '/images/crops/crops_cornStageD_SE.png'),
+  // new Item('Melon', '/images/crops/crop_melon_SE.png'),
+  // new Item('Pumpkin', '/images/crops/crop_pumpkin_SW.png'),
+  // new Item('Turnip', '/images/crops/crop_turnip_NE.png')
 ]
-
-window.onload = function() {
-  const inventory = new Inventory('inventoryCanvas')
-  
-  items.forEach(item => inventory.add(item));
-  
-  inventory.drawEmptyInventory();
-};
