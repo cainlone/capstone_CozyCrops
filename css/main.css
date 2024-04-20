@@ -53,3 +53,18 @@ canvas {
 #gameContainer button:hover {
   background-color: #aaa;
 }
+
+#currentItem {
+  position: absolute;
+  width: 48px;
+  text-align: center;
+  left: calc(50% - 241px);
+  font: bold 12px "Arial";
+}
+
+#text {
+  position: relative;
+  text-align: center;
+  bottom: -100px;
+  font-size: x-large;
+}

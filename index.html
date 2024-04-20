@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 </head>
-<body>
+<body style="overflow: hidden;">
   <div id="gameContainer">
     <!-- Game Canvas is 17 tiles by 11 tiles -->
     <Canvas id="gameCanvas" width="816" height="528"></Canvas>
@@ -26,6 +26,8 @@
     <!-- Inventory Canvas is 10 tiles by 1 tile -->
     <canvas id="inventoryCanvas" width="480" height="48"></canvas>
 
+    <div id="currentItem"></div>
+    <div id="text" width="816"></div>
   </div>
   
   <script src="js/main.js"></script>
