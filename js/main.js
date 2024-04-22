@@ -1,9 +1,53 @@
-let inventory;
+var dbData;
+var inventory;
+let playerPosData;
+let inventoryData;
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Check if the user ID is set
+  if (userId) {
+    // Create a new XMLHttpRequest object
+    var xhr = new XMLHttpRequest();
+
+    // Set up the request
+    xhr.open('POST', 'fetchData.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    // Define what happens on successful data retrieval
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        // Parse the response JSON
+        dbData = JSON.parse(xhr.responseText);
+        playerPosData = dbData.playerPosData;
+        inventoryData = dbData.inventoryData;
+
+        // Handle the response data here
+      } else {
+        // Handle HTTP errors
+        console.error('Request failed with status:', xhr.status);
+      }
+    };
+
+    // Define what happens in case of an error
+    xhr.onerror = function() {
+      console.error('Request failed');
+    };
+
+    // Send the request with the user ID as URL-encoded payload
+    var formData = 'userId=' + encodeURIComponent(userId);
+    xhr.send(formData);
+  } else {
+    console.log('User ID not set');
+  }
+});
 
 window.onload = function() {
   inventory = new Inventory('inventoryCanvas')
   
-  items.forEach(item => inventory.add(item));
+  for(x = 0; x < inventoryData.length; x++) {
+    inventory.add(items[x]);
+    items[x].quantity = inventoryData[x].quantity;
+  }
   
   inventory.drawEmptyInventory();
 };
@@ -42,6 +86,8 @@ let sprite = {
   speed: 2,
 };
 
+let targetPosition = { x: sprite.x, y: sprite.y };
+
 let balloon = {
   x: -1000000,
   y: -1000000,
@@ -78,7 +124,6 @@ function drawMap() {
       drawLayer(layer);
     }
   });
-
   drawSprite();
 
   mapData.layers.forEach((layer) => {
@@ -86,6 +131,30 @@ function drawMap() {
       drawLayer(layer);
     }
   });
+
+  while(sprite.x >= canvasMaxWidth) {
+    canvasMaxWidth += TILE_SIZE;
+    canvasMinWidth += TILE_SIZE;
+    ctx.translate(-TILE_SIZE, 0);
+  }
+
+  while(sprite.x < canvasMinWidth) {
+    canvasMaxWidth -= TILE_SIZE;
+    canvasMinWidth -= TILE_SIZE;
+    ctx.translate(TILE_SIZE, 0);
+  }
+
+  while(sprite.y >= canvasMaxHeight) {
+    canvasMaxHeight += TILE_SIZE;
+    canvasMinHeight += TILE_SIZE;
+    ctx.translate(0, -TILE_SIZE);
+  }
+
+  while(sprite.y < canvasMinHeight) {
+    canvasMaxHeight -= TILE_SIZE;
+    canvasMinHeight -= TILE_SIZE;
+    ctx.translate(0, TILE_SIZE);
+  }
 }
 
 function drawLayer(layer) {
@@ -143,6 +212,10 @@ function drawLayer(layer) {
     }
 
     if(drawLayerCount == 1 && tileLayerId == 3) {
+      sprite.x = playerPosData[0].xpos;
+      sprite.y = playerPosData[0].ypos;
+      targetPosition = { x: sprite.x, y: sprite.y };
+      layer.data[index] = dbData.layerthreetilesData[index].tileid;
       layerThree = layer.data;
       eventInUse[index] = false;
     }
@@ -211,8 +284,6 @@ function fetchJson(jsonPath) {
     })
     .catch((error) => console.error("Error loading map:", error));
 }
-
-let targetPosition = { x: 0, y: 0 };
 
 function updatePosition() {
   let dx = targetPosition.x - sprite.x;
@@ -542,7 +613,6 @@ function eventPicker(tileIndex) {
   }
 }
 
-// For simple events like this, we can probably put the code for it in the switch case above instead of in their own functions. This is just to show what we'd do for more complicated functions.
 function signEvent(tileIndex) {
   if(tileIndex == 210) {
     document.getElementById("text").innerHTML = "The sign reads: \"This is a test\"";

@@ -95,8 +95,51 @@ function startGame() {
 }
 
 function saveGame() {
-  // save game state
-  // alert("Game saved!");
+  mapData.layers.forEach(layer => {
+    if(layer.id === 3) {
+      layer.data.forEach((tileIndex, index) => {
+        dbData.layerthreetilesData[index].tileid = layer.data[index];
+      })
+    }
+  })
+
+  let userId = dbData.userId;
+  let layerThree = dbData.layerthreetilesData;
+  let spriteX = sprite.x;
+  let spriteY = sprite.y;
+  let inventory = this.inventory.items;
+  let inventoryLength = inventory.length;
+
+  let data = {
+    userId,
+    layerThree,
+    spriteX,
+    spriteY,
+    inventory,
+    inventoryLength
+  }
+
+  var xhttp = new XMLHttpRequest();
+
+  console.log("first")
+
+  // Define the callback function to handle the response
+  xhttp.onreadystatechange = function() {
+    console.log("second")
+    if (this.readyState == 4 && this.status == 200) {
+      // Response from the server
+      console.log(this.responseText);
+    }
+  };
+
+  // Open a connection to the server-side PHP script
+  xhttp.open("POST", "storeData.php", true);
+
+  // Set the Content-Type header
+  xhttp.setRequestHeader("Content-type", "application/json");
+
+  // Send the request to the server with the data as JSON
+  xhttp.send(JSON.stringify(data));
 }
 
 function startMenu() {
