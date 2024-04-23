@@ -73,8 +73,8 @@ let layerThree = [];
 let eventInUse = [];
 
 let sprite = {
-  x: 0,
-  y: 0,
+  x: 1152,
+  y: 2352,
   width: TILE_SIZE,
   height: TILE_SIZE,
   speed: 2,
@@ -93,6 +93,7 @@ let balloonImage;
 let isEvent;
 let eventTileIndex;
 let facing;
+let loadingGame = true;
 
 let drawBalloonCount = 0;
 let drawLayerCount = 1;
@@ -123,28 +124,32 @@ function drawMap() {
     }
   });
 
-  while(sprite.x >= canvasMaxWidth) {
-    canvasMaxWidth += TILE_SIZE;
-    canvasMinWidth += TILE_SIZE;
-    ctx.translate(-TILE_SIZE, 0);
-  }
+  if(loadingGame) {
+    while(sprite.x >= canvasMaxWidth / 2) {
+      canvasMaxWidth += TILE_SIZE;
+      canvasMinWidth += TILE_SIZE;
+      ctx.translate(-TILE_SIZE, 0);
+    }
+  
+    while(sprite.x < canvasMinWidth * 2) {
+      canvasMaxWidth -= TILE_SIZE;
+      canvasMinWidth -= TILE_SIZE;
+      ctx.translate(TILE_SIZE, 0);
+    }
+  
+    while(sprite.y >= canvasMaxHeight / 2) {
+      canvasMaxHeight += TILE_SIZE;
+      canvasMinHeight += TILE_SIZE;
+      ctx.translate(0, -TILE_SIZE);
+    }
+  
+    while(sprite.y < canvasMinHeight * 2) {
+      canvasMaxHeight -= TILE_SIZE;
+      canvasMinHeight -= TILE_SIZE;
+      ctx.translate(0, TILE_SIZE);
+    }
 
-  while(sprite.x < canvasMinWidth) {
-    canvasMaxWidth -= TILE_SIZE;
-    canvasMinWidth -= TILE_SIZE;
-    ctx.translate(TILE_SIZE, 0);
-  }
-
-  while(sprite.y >= canvasMaxHeight) {
-    canvasMaxHeight += TILE_SIZE;
-    canvasMinHeight += TILE_SIZE;
-    ctx.translate(0, -TILE_SIZE);
-  }
-
-  while(sprite.y < canvasMinHeight) {
-    canvasMaxHeight -= TILE_SIZE;
-    canvasMinHeight -= TILE_SIZE;
-    ctx.translate(0, TILE_SIZE);
+    loadingGame = false;
   }
 }
 
