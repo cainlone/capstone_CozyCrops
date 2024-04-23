@@ -55,7 +55,7 @@ window.onload = function() {
 let TILE_SIZE = 48;
 
 let map = {
-  jsonPath: "js/sample.json",
+  jsonPath: "js/map.json",
   height: 0,
   width: 0,
 };

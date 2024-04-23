@@ -30,7 +30,7 @@ try {
     $stmt->execute(['userid' => $userId]);
 
     // Insert new data into layerthreetiles table
-    for ($x = 0; $x < 400; $x++) {
+    for ($x = 0; $x < 2500; $x++) {
         $sql = "INSERT INTO layerthreetiles (tileindex, userid, tileid) VALUES (:tileindex, :userid, :tileid)";
         $layerthreetilesInfo = $pdo->prepare($sql);
         $layerthreetilesInfo->execute(['tileindex' => $x, 'userid' => $userId, 'tileid' => $layerThree[$x]->tileid]);
