@@ -87,6 +87,8 @@ function startGame() {
   // show ui elements
   pauseBtn.style.display = "block";
   invCanvas.style.display = "block";
+  // document.getElementById("gameCanvas").style.height = "672px";
+  // document.getElementById("gameCanvas").style.width = "912px";
 
   if (isPaused) {
     isPaused = false;

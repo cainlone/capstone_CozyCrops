@@ -4,40 +4,30 @@ let playerPosData;
 let inventoryData;
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Check if the user ID is set
   if (userId) {
-    // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
 
-    // Set up the request
     xhr.open('POST', 'fetchData.php', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    // Define what happens on successful data retrieval
     xhr.onload = function() {
       if (xhr.status >= 200 && xhr.status < 300) {
-        // Parse the response JSON
         dbData = JSON.parse(xhr.responseText);
         playerPosData = dbData.playerPosData;
         inventoryData = dbData.inventoryData;
-
-        // Handle the response data here
       } else {
-        // Handle HTTP errors
         console.error('Request failed with status:', xhr.status);
       }
     };
 
-    // Define what happens in case of an error
     xhr.onerror = function() {
       console.error('Request failed');
     };
 
-    // Send the request with the user ID as URL-encoded payload
     var formData = 'userId=' + encodeURIComponent(userId);
     xhr.send(formData);
   } else {
-    console.log('User ID not set');
+    console.error('User ID not set');
   }
 });
 
@@ -45,8 +35,12 @@ window.onload = function() {
   inventory = new Inventory('inventoryCanvas')
   
   for(x = 0; x < inventoryData.length; x++) {
-    inventory.add(items[x]);
-    items[x].quantity = inventoryData[x].quantity;
+    for(y = 0; y < items.length; y++) {
+      if(items[y].name == inventoryData[x].name) {
+        inventory.add(items[y]);
+        items[y].quantity = inventoryData[x].quantity;
+      }
+    }
   }
   
   inventory.drawEmptyInventory();
@@ -106,9 +100,6 @@ let isPaused = true;
 
 let cropStage = 0;
 let isCrop;
-// Timer needs to either be paused when the game is closed meaning it needs to be saved, or the time passed between when the game is open from when it was closed needs to be calculated. When they start playing for the first time, the timer could be set to the time on their device and saved in a variable. Then be constantly setting the device time into a second variable and compare the two to see how much time has passed. The first variable will have to always stay the same even after they close and open the game. Whether or not it's their first time playing will have to be stored and retrieved. Run a check on it to decide whether or not to set the variable. If not, it must already exist, so retrieve it.
-
-// If we really wanted a timer "going" even while the game is closed, we would have to make an array and save the currentTime variable into the index of the array matching the tile index for the tile who needs the timer. Once the event ends, that will be reset to 0. So, if they start the event, save and exit the game, the database will take in that array with the last currentTime value. Every time they open the game, we'll have to check 
 
 function extractImageSource(tsxContent) {
   let parser = new DOMParser();
@@ -268,7 +259,6 @@ function fetchJson(jsonPath) {
               frames.forEach((frame) => {
                 frameDurations.push(parseInt(frame.getAttribute("duration")));
               });
-              // Load balloon image
               let imageSource = extractImageSource(tsxContent);
               balloonImage = new Image();
               balloonImage.src = imageSource;
@@ -523,7 +513,6 @@ function gameLoop() {
   }
 }
 
-// This will obviously grow as we add events.
 function eventPicker(tileIndex) {
   let startTime;
   let item = inventory.items[inventory.activeItem];
@@ -614,7 +603,7 @@ function eventPicker(tileIndex) {
 }
 
 function signEvent(tileIndex) {
-  if(tileIndex == 210) {
+  if(tileIndex == 2376) {
     document.getElementById("text").innerHTML = "The sign reads: \"This is a test\"";
   }
 }

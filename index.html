@@ -11,19 +11,15 @@
 </head>
 <body style="overflow: hidden;">
   <div id="gameContainer">
-    <!-- Game Canvas is 17 tiles by 11 tiles -->
     <Canvas id="gameCanvas" width="816" height="528"></Canvas>
     <button id="pauseBtn" onclick="pauseGame();"> || </button>
 
     <div id="accountContainer">
-      <!--login button -->
       <button class="loginBtn" onclick="window.location.href = 'login.php';">Login</button>
 
-      <!-- Create Account -->
       <button class="createAccountBtn" onclick="window.location.href = 'createAccount.php';">Create Account</button>
     </div>
 
-    <!-- Inventory Canvas is 10 tiles by 1 tile -->
     <canvas id="inventoryCanvas" width="480" height="48"></canvas>
 
     <div id="currentItem"></div>

@@ -5,7 +5,7 @@ class Item {
     this.img.src = imgSrc;
     this.quantity = quantity;
     this.resizedImg = null; 
-    this.img.onload = () => this.resizeImage(); // resize the image when loaded
+    this.img.onload = () => this.resizeImage();
   }
 
 
@@ -17,13 +17,11 @@ class Item {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
         
-      // Set canvas dimensions
       canvas.width = TILE_SIZE;
       canvas.height = TILE_SIZE;
         
       ctx.drawImage(this, 0, 0, TILE_SIZE, TILE_SIZE);
         
-      // Set the resized image 
       self.resizedImg = resizedImg;
         
       console.log("Resized image dimensions for", self.name + ":", resizedImg.width, resizedImg.height);
@@ -41,7 +39,7 @@ class Inventory {
     this.inactivePng = new Image();
     this.size = size;
     this.activeItem = 0;
-    this.items = []; //hold the array
+    this.items = [];
     this.hoveredItem = -1;
     
     this.activePng.src = 'images/hotbar_active.png';
@@ -89,7 +87,6 @@ class Inventory {
   }
 
   add(item) {
-    // Check if item already exists in the inventory 
     const existingItem = this.items.find(i => i.name === item.name);
     if (existingItem) {
       if (existingItem.quantity >= 999) {
@@ -138,8 +135,8 @@ class Inventory {
       const img = item.resizedImg;
 
       if (img) {
-      let xPos = i * TILE_SIZE - 120; // default horizontal position
-      let yPos = -140; // default vertical position
+      let xPos = i * TILE_SIZE - 120;
+      let yPos = -140;
       let width = TILE_SIZE * 6;
       let height = TILE_SIZE * 6;
 
@@ -190,7 +187,6 @@ class Inventory {
   }
 }
 
-//define items
 let items = [
   new Item('Watering Can', '/images/wateringCan.png'),
   new Item('Carrot', '/images/crops/crop_carrot_SE.png'),

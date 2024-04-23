@@ -1,86 +1,73 @@
 <?php
 session_start();
 
-// Include your dbConnect.php file to establish a database connection
 include 'dbConnect.php';
-// Include your sanitize.php file
 include 'sanitize.php';
 
-// Check if form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize form inputs
-    $fName = trim(sanitizeString(INPUT_POST, 'fName'));
-    $lName = trim(sanitizeString(INPUT_POST, 'lName'));
-    $newUsername = trim(sanitizeString(INPUT_POST, 'newUsername'));
-    $newPassword = trim(sanitizeString(INPUT_POST, 'newPassword'));
-    $dob = sanitizeString(INPUT_POST, 'dob');
+  $fName = trim(sanitizeString(INPUT_POST, 'fName'));
+  $lName = trim(sanitizeString(INPUT_POST, 'lName'));
+  $newUsername = trim(sanitizeString(INPUT_POST, 'newUsername'));
+  $newPassword = trim(sanitizeString(INPUT_POST, 'newPassword'));
+  $dob = sanitizeString(INPUT_POST, 'dob');
 
-    $dobTimestamp = strtotime($dob);
-    $age = date('Y') - date('Y', $dobTimestamp);
-    if (date('md') < date('md', $dobTimestamp)) {
-        $age--;
-    }
+  $dobTimestamp = strtotime($dob);
+  $age = date('Y') - date('Y', $dobTimestamp);
+  if (date('md') < date('md', $dobTimestamp)) {
+    $age--;
+  }
 
-    if ($age < 13) {
-        $error_message = "You must be 13 years or older to create an account.";
+  if ($age < 13) {
+    $error_message = "You must be 13 years or older to create an account.";
+    ?><script>enableForm();</script><?php
+  } else {
+    $loginInfo = $pdo->prepare("SELECT * FROM logininfo WHERE username = :username");
+    $loginInfo->execute(['username' => $newUsername]);
+    $existingUser = $loginInfo->fetch(PDO::FETCH_ASSOC);
+
+    if ($existingUser) {
+      $error_message = "Username already exists. Please choose a different username.";
+      ?><script>enableForm();</script><?php
     } else {
-        $loginInfo = $pdo->prepare("SELECT * FROM logininfo WHERE username = :username");
-        $loginInfo->execute(['username' => $newUsername]);
-        $existingUser = $loginInfo->fetch(PDO::FETCH_ASSOC);
+      $pdo->beginTransaction();
 
-        if ($existingUser) {
-            $error_message = "Username already exists. Please choose a different username.";
-        } else {
-            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO logininfo (username, password) VALUES (:username, :password)";
-            $loginInfo = $pdo->prepare($sql);
-            $loginInfo->execute(['username' => $newUsername, 'password' => $hashedPassword]);
+      $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+      $loginInfo = $pdo->prepare("INSERT INTO logininfo (username, password) VALUES (:username, :password)");
+      $loginInfo->execute(['username' => $newUsername, 'password' => $hashedPassword]);
 
-            $loginInfo = $pdo->prepare("SELECT * FROM logininfo WHERE username = :username");
-            $loginInfo->execute(['username' => $newUsername]);
-            $userId = $loginInfo->fetch(PDO::FETCH_ASSOC);
+      $loginInfo = $pdo->prepare("SELECT * FROM logininfo WHERE username = :username");
+      $loginInfo->execute(['username' => $newUsername]);
+      $userId = $loginInfo->fetch(PDO::FETCH_ASSOC);
 
-            $sql = "INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)";
-            $inventoryInfo = $pdo->prepare($sql);
-            $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Watering Can", 'inventoryid' => 0]);
+      $inventoryInfo = $pdo->prepare("INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)");
+      $inventoryInfo = $pdo->prepare("INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)");
+      $inventoryInfo = $pdo->prepare("INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)");      
+      $inventoryInfo = $pdo->prepare("INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)");
+      $inventoryInfo = $pdo->prepare("INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)");
+      $playerposInfo = $pdo->prepare("INSERT INTO playerpos (userid, xpos, ypos) VALUES (:userid, :xpos, :ypos)");
 
-            $sql = "INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)";
-            $inventoryInfo = $pdo->prepare($sql);
-            $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Carrot", 'inventoryid' => 1]);
+      $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Watering Can", 'inventoryid' => 0]);
+      $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Carrot", 'inventoryid' => 1]);
+      $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Cabbage", 'inventoryid' => 2]);
+      $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Grape", 'inventoryid' => 3]);
+      $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Wheat", 'inventoryid' => 4]);
+      $playerposInfo->execute(['userid' => $userId['userid'], 'xpos' => 0, 'ypos' => 0]);
 
-            $sql = "INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)";
-            $inventoryInfo = $pdo->prepare($sql);
-            $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Cabbage", 'inventoryid' => 2]);
+      $jsonData = file_get_contents("js/map.json");
+      $data = json_decode($jsonData, true);
+      
+      for($x = 0; $x < 2500; $x++) {
+        $sql = "INSERT INTO layerthreetiles (tileindex, userid, tileid) VALUES (:tileindex, :userid, :tileid)";
+        $layerthreetilesInfo = $pdo->prepare($sql);
+        $layerthreetilesInfo->execute(['tileindex' => $x, 'userid' => $userId['userid'], 'tileid' => $data['layers'][2]['data'][$x]]);
+      }
 
-            $sql = "INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)";
-            $inventoryInfo = $pdo->prepare($sql);
-            $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Grape", 'inventoryid' => 3]);
+      $pdo->commit();
 
-            $sql = "INSERT INTO inventory (userid, name, quantity, inventoryid) VALUES (:userid, :name, 1, :inventoryid)";
-            $inventoryInfo = $pdo->prepare($sql);
-            $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Wheat", 'inventoryid' => 4]);
-
-            $jsonData = file_get_contents("js/map.json");
-            $data = json_decode($jsonData, true);
-            
-
-            //instead of setting tileid to 0 every time, set it to sample.json layer three tileId at data[$x]
-            for($x = 0; $x < 2500; $x++) {
-              $sql = "INSERT INTO layerthreetiles (tileindex, userid, tileid) VALUES (:tileindex, :userid, :tileid)";
-              $layerthreetilesInfo = $pdo->prepare($sql);
-              $layerthreetilesInfo->execute(['tileindex' => $x, 'userid' => $userId['userid'], 'tileid' => $data['layers'][2]['data'][$x]]);
-            }
-
-            $sql = "INSERT INTO playerpos (userid, xpos, ypos) VALUES (:userid, :xpos, :ypos)";
-            $playerposInfo = $pdo->prepare($sql);
-            $playerposInfo->execute(['userid' => $userId['userid'], 'xpos' => 0, 'ypos' => 0]);
-
-            // echo implode(', ', $data['layers'][2]['data']);
-
-            header("Location: login.php");
-            exit();
-        }
+      header("Location: login.php");
+      exit();
     }
+  }
 }
 ?>
 
@@ -92,11 +79,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>Create New Account</title>
   <link rel="stylesheet" href="css/createAccount.css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script>
+    function disableForm() {
+      var buttons = document.querySelectorAll("button");
+      buttons.forEach(function(button) {
+        button.disabled = true;
+      });
+    }
+
+    function enableForm() {
+      var form = document.getElementById("createAccountForm");
+      var elements = form.elements;
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].disabled = false;
+      }
+      var buttons = document.querySelectorAll("button");
+      buttons.forEach(function(button) {
+        button.disabled = false;
+      })
+    }
+  </script>
 </head>
 <body>
   <div>
     <h2>Create Account</h2>
-    <form id="createAccountForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post"> 
+    <form id="createAccountForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" onsubmit="disableForm()"> 
       <label for="fName">First Name:</label><br>
       <input type="text" id="fName" name="fName" required><br>
 
@@ -116,9 +123,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <button onclick="window.location.href = 'login.php';" class="createAccountButton">Login</button>
     </form>
     <?php
-    // Display error message if exists
     if(isset($error_message)) {
-        echo '<p class="error">' . $error_message . '</p>';
+      echo '<p class="error">' . $error_message . '</p>';
     }
     ?>
   </div>

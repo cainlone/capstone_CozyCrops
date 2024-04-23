@@ -51,8 +51,8 @@ DROP TABLE IF EXISTS `layerthreetiles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `layerthreetiles` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `tileindex` int NOT NULL,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `tileindex` BIGINT NOT NULL,
   `userid` int DEFAULT NULL,
   `tileid` int DEFAULT NULL,
   PRIMARY KEY (`id`)
