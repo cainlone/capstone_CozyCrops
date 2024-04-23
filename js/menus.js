@@ -1,6 +1,5 @@
 let BUTTON_WIDTH = TILE_SIZE * 3;
 
-// Pause menu
 let pauseScreen = new Image();
 let greenActive = new Image();
 let redActive = new Image();
@@ -9,7 +8,6 @@ pauseScreen.src = pauseImgStr + "pause_menu.png";
 greenActive.src = pauseImgStr + "green_active.png";
 redActive.src = pauseImgStr + "red_active.png";
 
-// Start menu
 let background = new Image();
 let background2 = new Image();
 let blueActive = new Image();
@@ -18,15 +16,14 @@ background.src = startImgStr + "bg.png";
 background2.src = startImgStr + "bg2.png";
 blueActive.src = startImgStr + "blue_active.png";
 
-// html ui elements
 let pauseBtn = document.getElementById("pauseBtn");
 let invCanvas = document.getElementById("inventoryCanvas");
 
 let buttons = [
   {
     name: "Play Game!",
-    y: canvasMinHeight + (TILE_SIZE * 7),
-    x: canvasMinWidth + (TILE_SIZE * 5),
+    y: canvasMinHeight + TILE_SIZE * 7,
+    x: canvasMinWidth + TILE_SIZE * 5,
     hover: false,
     hoverImg: blueActive,
     width: TILE_SIZE * 7,
@@ -34,22 +31,22 @@ let buttons = [
   },
   {
     name: "Save",
-    y: canvasMinHeight + (TILE_SIZE * 4),
-    x: canvasMinWidth + (TILE_SIZE * 5),
+    y: canvasMinHeight + TILE_SIZE * 4,
+    x: canvasMinWidth + TILE_SIZE * 5,
     hover: false,
     hoverImg: greenActive,
   },
   {
     name: "Resume",
-    y: canvasMinHeight + (TILE_SIZE * 4),
-    x: canvasMinWidth + (TILE_SIZE * 9),
+    y: canvasMinHeight + TILE_SIZE * 4,
+    x: canvasMinWidth + TILE_SIZE * 9,
     hover: false,
     hoverImg: greenActive,
   },
   {
     name: "Exit",
-    y: canvasMinHeight + (TILE_SIZE * 6),
-    x: canvasMinWidth + (TILE_SIZE * 7),
+    y: canvasMinHeight + TILE_SIZE * 6,
+    x: canvasMinWidth + TILE_SIZE * 7,
     hover: false,
     hoverImg: redActive,
   },
@@ -84,7 +81,6 @@ function startGame() {
   canvas.removeEventListener("mousemove", onHoverStartMenu);
   drawBalloonCount = 0;
 
-  // show ui elements
   pauseBtn.style.display = "block";
   invCanvas.style.display = "block";
 
@@ -95,19 +91,54 @@ function startGame() {
 }
 
 function saveGame() {
-  // save game state
-  // alert("Game saved!");
+  mapData.layers.forEach((layer) => {
+    if (layer.id === 3) {
+      layer.data.forEach((tileIndex, index) => {
+        dbData.layerthreetilesData[index].tileid = layer.data[index];
+      });
+    }
+  });
+
+  let userId = dbData.userId;
+  let layerThree = dbData.layerthreetilesData;
+  let spriteX = sprite.x;
+  let spriteY = sprite.y;
+  let inventory = this.inventory.items;
+  let inventoryLength = inventory.length;
+
+  let data = {
+    userId,
+    layerThree,
+    spriteX,
+    spriteY,
+    inventory,
+    inventoryLength,
+  };
+
+  var xhttp = new XMLHttpRequest();
+
+  console.log("first");
+
+  xhttp.onreadystatechange = function () {
+    console.log("second");
+    if (this.readyState == 4 && this.status == 200) {
+      console.log(this.responseText);
+    }
+  };
+
+  xhttp.open("POST", "storeData.php", true);
+
+  xhttp.setRequestHeader("Content-type", "application/json");
+
+  xhttp.send(JSON.stringify(data));
 }
 
 function startMenu() {
-  // hide ui elements
   pauseBtn.style.display = "none";
   invCanvas.style.display = "none";
 
-  // go to start menu
   drawStartMenu();
 
-  // Add event listeners for start button
   canvas.addEventListener("click", onClickStartMenu);
   canvas.addEventListener("mousemove", onHoverStartMenu);
 }
@@ -117,27 +148,42 @@ function drawStartMenu() {
   ctx.drawImage(background2, canvasMinWidth, canvasMinHeight);
 
   if (currentHover) {
-    ctx.drawImage(currentHover.hoverImg, canvasMinWidth + currentHover.x, canvasMinHeight + currentHover.y);
+    ctx.drawImage(
+      currentHover.hoverImg,
+      canvasMinWidth + currentHover.x,
+      canvasMinHeight + currentHover.y
+    );
   }
 
-  // Text for buttons
   ctx.fillStyle = "black";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = '36px "Press Start 2P"';
-  ctx.fillText("Cozy Crops", canvasMinWidth + (TILE_SIZE * 8.5), canvasMinHeight + (TILE_SIZE * 1.5));
+  ctx.fillText(
+    "Cozy Crops",
+    canvasMinWidth + TILE_SIZE * 8.5,
+    canvasMinHeight + TILE_SIZE * 1.5
+  );
   if (currentHover) ctx.fillStyle = "gray";
   ctx.font = '16px "Press Start 2P"';
-  ctx.fillText("Play Game!", canvasMinWidth + (TILE_SIZE * 8.5), canvasMinHeight + (TILE_SIZE * 8));
+  ctx.fillText(
+    "Play Game!",
+    canvasMinWidth + TILE_SIZE * 8.5,
+    canvasMinHeight + TILE_SIZE * 8
+  );
 }
 
 function onHoverStartMenu(event) {
   let rect = canvas.getBoundingClientRect();
   let mouseX = event.clientX - rect.left;
   let mouseY = event.clientY - rect.top;
-  
-  if (mouseX > TILE_SIZE * 5 && mouseX < TILE_SIZE * 12 &&
-      mouseY > TILE_SIZE * 7 && mouseY < TILE_SIZE * 9) {
+
+  if (
+    mouseX > TILE_SIZE * 5 &&
+    mouseX < TILE_SIZE * 12 &&
+    mouseY > TILE_SIZE * 7 &&
+    mouseY < TILE_SIZE * 9
+  ) {
     currentHover = buttons[0];
   } else {
     currentHover = null;
@@ -155,19 +201,31 @@ function onClickStartMenu(event) {
 }
 
 function drawPauseScreen() {
-  ctx.drawImage(pauseScreen, canvasMinWidth + (TILE_SIZE * 4), canvasMinHeight + (TILE_SIZE * 3));
+  ctx.drawImage(
+    pauseScreen,
+    canvasMinWidth + TILE_SIZE * 4,
+    canvasMinHeight + TILE_SIZE * 3
+  );
 
   // Text for buttons
   buttons.forEach((button) => {
-    if (button.name === 'Play Game!') return; // Skip the play game button (only for start menu)
+    if (button.name === "Play Game!") return;
     if (button.hover) {
-      ctx.drawImage(button.hoverImg, canvasMinWidth + (button.x), canvasMinHeight + (button.y));
+      ctx.drawImage(
+        button.hoverImg,
+        canvasMinWidth + button.x,
+        canvasMinHeight + button.y
+      );
     }
-    ctx.fillStyle = button.hover ? "gray" : "black"; // Change text color on hover
+    ctx.fillStyle = button.hover ? "gray" : "black";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = '16px "Press Start 2P"';
-    ctx.fillText(button.name, canvasMinWidth + (button.x + BUTTON_WIDTH / 2), canvasMinHeight + (button.y + TILE_SIZE / 2));
+    ctx.fillText(
+      button.name,
+      canvasMinWidth + (button.x + BUTTON_WIDTH / 2),
+      canvasMinHeight + (button.y + TILE_SIZE / 2)
+    );
   });
 }
 
@@ -183,12 +241,15 @@ function updateHoverState(mouseX, mouseY) {
   currentHover = null;
 
   buttons.forEach((button) => {
-    const isHover = mouseX > button.x && mouseX < button.x + BUTTON_WIDTH &&
-                    mouseY > button.y && mouseY < button.y + TILE_SIZE;
+    const isHover =
+      mouseX > button.x &&
+      mouseX < button.x + BUTTON_WIDTH &&
+      mouseY > button.y &&
+      mouseY < button.y + TILE_SIZE;
 
     if (isHover && !button.hover) {
       button.hover = true;
-      currentHover = button; // Update the currentHover
+      currentHover = button;
       wasUpdated = true;
     } else if (!isHover && button.hover) {
       button.hover = false;
@@ -196,7 +257,6 @@ function updateHoverState(mouseX, mouseY) {
     }
   });
 
-  // Only redraw if an update occurred
   if (wasUpdated) {
     drawPauseScreen();
   }
@@ -208,14 +268,17 @@ function onClickPauseMenu(event) {
   let mouseY = event.clientY - rect.top;
 
   buttons.forEach((button) => {
-    if (mouseX > button.x && mouseX < button.x + BUTTON_WIDTH &&
-        mouseY > button.y && mouseY < button.y + TILE_SIZE) {
-      // Call the respective function for each button
-      if (button.name === 'Save') {
+    if (
+      mouseX > button.x &&
+      mouseX < button.x + BUTTON_WIDTH &&
+      mouseY > button.y &&
+      mouseY < button.y + TILE_SIZE
+    ) {
+      if (button.name === "Save") {
         saveGame();
-      } else if (button.name === 'Resume') {
+      } else if (button.name === "Resume") {
         resumeGame();
-      } else if (button.name === 'Exit') {
+      } else if (button.name === "Exit") {
         pauseBtn.onclick = pauseGame;
         exitGame();
       }
@@ -224,11 +287,8 @@ function onClickPauseMenu(event) {
 }
 
 function exitGame() {
-  // save game state
   saveGame();
 
   document.getElementById("currentItem").innerHTML = "";
-  // alert("Exiting game...");
-  // go back to start menu
   startMenu();
 }
