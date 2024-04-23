@@ -3,49 +3,6 @@ var inventory;
 let playerPosData;
 let inventoryData;
 
-document.addEventListener("DOMContentLoaded", function() {
-  if (userId) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.open('POST', 'fetchData.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        dbData = JSON.parse(xhr.responseText);
-        playerPosData = dbData.playerPosData;
-        inventoryData = dbData.inventoryData;
-      } else {
-        console.error('Request failed with status:', xhr.status);
-      }
-    };
-
-    xhr.onerror = function() {
-      console.error('Request failed');
-    };
-
-    var formData = 'userId=' + encodeURIComponent(userId);
-    xhr.send(formData);
-  } else {
-    console.error('User ID not set');
-  }
-});
-
-window.onload = function() {
-  inventory = new Inventory('inventoryCanvas')
-  
-  for(x = 0; x < inventoryData.length; x++) {
-    for(y = 0; y < items.length; y++) {
-      if(items[y].name == inventoryData[x].name) {
-        inventory.add(items[y]);
-        items[y].quantity = inventoryData[x].quantity;
-      }
-    }
-  }
-  
-  inventory.drawEmptyInventory();
-};
-
 let TILE_SIZE = 48;
 
 let map = {
@@ -62,13 +19,20 @@ let canvasMaxWidth = canvas.width;
 let canvasMaxHeight = canvas.height;
 let canvasMinWidth = 0;
 let canvasMinHeight = 0;
+let loadingCanvasMaxWidth = 0;
+let loadingCanvasMinWidth = 0;
+let loadingCanvasMaxHeight = 0;
+let loadingCanvasMinHeight = 0;
 
 let tileLayerArray = [];
 let eventTileArray = [];
 let frameDurations = [];
 let eventTileIds = [];
 let cropTiles = [];
-let cropTileOptions = [242, 234, 235, 236, 237, 198, 199, 200, 201, 210, 211, 212, 213, 222, 223, 224, 225];
+let cropTileOptions = [
+  242, 234, 235, 236, 237, 198, 199, 200, 201, 210, 211, 212, 213, 222, 223,
+  224, 225,
+];
 let layerThree = [];
 let eventInUse = [];
 
@@ -102,6 +66,69 @@ let isPaused = true;
 let cropStage = 0;
 let isCrop;
 
+document.addEventListener("DOMContentLoaded", function () {
+  if (userId) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("POST", "fetchData.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onload = function () {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        dbData = JSON.parse(xhr.responseText);
+        playerPosData = dbData.playerPosData;
+        inventoryData = dbData.inventoryData;
+
+        loadingCanvasMaxWidth = playerPosData[0].xpos + canvas.width / 2;
+        while (loadingCanvasMaxWidth > map.width) {
+          loadingCanvasMaxWidth -= TILE_SIZE;
+        }
+
+        loadingCanvasMinWidth = playerPosData[0].xpos - canvas.width / 2;
+        while (loadingCanvasMinWidth < 0) {
+          loadingCanvasMinWidth += TILE_SIZE;
+        }
+
+        loadingCanvasMaxHeight = playerPosData[0].ypos + canvas.height / 2;
+        while (loadingCanvasMaxHeight > map.height) {
+          loadingCanvasMaxHeight -= TILE_SIZE;
+        }
+
+        loadingCanvasMinHeight = playerPosData[0].ypos - canvas.height / 2;
+        while (loadingCanvasMinHeight < 0) {
+          loadingCanvasMinHeight += TILE_SIZE;
+        }
+      } else {
+        console.error("Request failed with status:", xhr.status);
+      }
+    };
+
+    xhr.onerror = function () {
+      console.error("Request failed");
+    };
+
+    var formData = "userId=" + encodeURIComponent(userId);
+    xhr.send(formData);
+  } else {
+    console.error("User ID not set");
+  }
+});
+
+window.onload = function () {
+  inventory = new Inventory("inventoryCanvas");
+
+  for (x = 0; x < inventoryData.length; x++) {
+    for (y = 0; y < items.length; y++) {
+      if (items[y].name == inventoryData[x].name) {
+        inventory.add(items[y]);
+        items[y].quantity = inventoryData[x].quantity;
+      }
+    }
+  }
+
+  inventory.drawEmptyInventory();
+};
+
 function extractImageSource(tsxContent) {
   let parser = new DOMParser();
   let xmlDoc = parser.parseFromString(tsxContent, "text/xml");
@@ -110,6 +137,20 @@ function extractImageSource(tsxContent) {
 }
 
 function drawMap() {
+  if (loadingGame) {
+    while (canvasMaxWidth <= loadingCanvasMaxWidth) {
+      canvasMaxWidth += TILE_SIZE;
+      canvasMinWidth += TILE_SIZE;
+      ctx.translate(-TILE_SIZE, 0);
+    }
+
+    while (canvasMaxHeight <= loadingCanvasMaxHeight) {
+      canvasMaxHeight += TILE_SIZE;
+      canvasMinHeight += TILE_SIZE;
+      ctx.translate(0, -TILE_SIZE);
+    }
+    loadingGame = false;
+  }
 
   mapData.layers.forEach((layer) => {
     if (layer.type === "tilelayer" && (layer.id === 1 || layer.id === 2)) {
@@ -123,34 +164,6 @@ function drawMap() {
       drawLayer(layer);
     }
   });
-
-  if(loadingGame) {
-    while(sprite.x >= canvasMaxWidth / 2) {
-      canvasMaxWidth += TILE_SIZE;
-      canvasMinWidth += TILE_SIZE;
-      ctx.translate(-TILE_SIZE, 0);
-    }
-  
-    while(sprite.x < canvasMinWidth * 2) {
-      canvasMaxWidth -= TILE_SIZE;
-      canvasMinWidth -= TILE_SIZE;
-      ctx.translate(TILE_SIZE, 0);
-    }
-  
-    while(sprite.y >= canvasMaxHeight / 2) {
-      canvasMaxHeight += TILE_SIZE;
-      canvasMinHeight += TILE_SIZE;
-      ctx.translate(0, -TILE_SIZE);
-    }
-  
-    while(sprite.y < canvasMinHeight * 2) {
-      canvasMaxHeight -= TILE_SIZE;
-      canvasMinHeight -= TILE_SIZE;
-      ctx.translate(0, TILE_SIZE);
-    }
-
-    loadingGame = false;
-  }
 }
 
 function drawLayer(layer) {
@@ -175,9 +188,9 @@ function drawLayer(layer) {
         tileLayerArray[index] = tileLayerId;
       }
 
-      if(tileLayerId == 3) {
+      if (tileLayerId == 3) {
         eventTileIds[index] = layer.data[index];
-        if(cropTileOptions.includes(eventTileIds[index])) {
+        if (cropTileOptions.includes(eventTileIds[index])) {
           isCrop = true;
         } else {
           isCrop = false;
@@ -207,7 +220,7 @@ function drawLayer(layer) {
       );
     }
 
-    if(drawLayerCount == 1 && tileLayerId == 3) {
+    if (drawLayerCount == 1 && tileLayerId == 3) {
       sprite.x = playerPosData[0].xpos;
       sprite.y = playerPosData[0].ypos;
       targetPosition = { x: sprite.x, y: sprite.y };
@@ -217,10 +230,9 @@ function drawLayer(layer) {
     }
 
     if (tileLayerId == 5 && !eventTileArray[index]) {
-      eventTileIds[index] = 0
+      eventTileIds[index] = 0;
       cropTiles[index] = false;
     }
-
   });
 }
 
@@ -302,82 +314,64 @@ function update(event) {
   let upOrDown;
   let tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
   let tileIndexY = Math.floor(targetPosition.y / TILE_SIZE);
+  let translate = false;
 
   document.getElementById("text").innerHTML = "";
 
   switch (event.key) {
     case "ArrowUp":
     case "w":
-      if(!(targetPosition.y <= 0) && targetPosition.y <= canvasMinHeight * 2) {
-        ctx.translate(0, TILE_SIZE);
-        canvasMinHeight -= TILE_SIZE;
-        canvasMaxHeight -= TILE_SIZE;
-        console.log(canvasMaxHeight);
-        console.log(canvasMinHeight);
+      if (
+        !(canvasMinHeight <= 0) &&
+        sprite.y + TILE_SIZE <= canvasMaxHeight - canvas.height / 2
+      ) {
+        translate = true;
         targetPosition.y -= TILE_SIZE;
-      } else if( !(targetPosition.y <= 0)) {
+        yOrX = true;
+        upOrDown = false;
+        facing = "up";
+      } else if (!(targetPosition.y <= 0)) {
+        translate = false;
         targetPosition.y -= TILE_SIZE;
+        yOrX = true;
+        upOrDown = false;
+        facing = "up";
       }
-      // if (!(targetPosition.y <= canvasMinHeight * 2) && !((canvasMinHeight <= 0))) {
-      //   console.log("canvasMinHeight * 2: " + canvasMinHeight * 2)
-      //   console.log("sprite.y - TILE_SIZE: " + (sprite.y - TILE_SIZE))
-      //   targetPosition.y -= TILE_SIZE;
-      //   yOrX = true;
-      //   upOrDown = false;
-      //   facing = "up";
-      // } else if (!(targetPosition.y <= 0) && !((canvasMinHeight <= 0))) {
-        // ctx.translate(0, TILE_SIZE);
-        // canvasMinHeight -= TILE_SIZE / 2;
-        // canvasMaxHeight -= TILE_SIZE;
-        // targetPosition.y -= TILE_SIZE;
-      //   console.log("canvasMinHeight * 2: " + canvasMinHeight * 2)
-      //   console.log("sprite.y - TILE_SIZE: " + (sprite.y - TILE_SIZE))
-      //   yOrX = true;
-      //   upOrDown = false;
-      //   facing = "up";
-      // }
-      yOrX = true;
-      upOrDown = false;
-      facing = "up";
       isEvent = false;
       break;
     case "ArrowDown":
     case "s":
-      if (!(targetPosition.y + TILE_SIZE >= canvasMaxHeight / 2)) {
+      if (
+        !(canvasMaxHeight >= map.height) &&
+        sprite.y >= canvasMaxHeight - canvas.height / 2
+      ) {
+        translate = true;
         targetPosition.y += TILE_SIZE;
         yOrX = true;
         upOrDown = true;
         facing = "down";
-      } else if (!(targetPosition.y + TILE_SIZE >= map.height) && !(canvasMaxWidth >= map.height)) {
-        console.log("the fukc")
-        console.log(map.height)
-          console.log(sprite.y * 2)
-          console.log(canvasMinHeight)
-        if(!((sprite.y) > map.height - canvasMinHeight)) {
-          
-          ctx.translate(0, -TILE_SIZE);
-          canvasMaxHeight += TILE_SIZE;
-          canvasMinHeight += TILE_SIZE;
-          targetPosition.y += TILE_SIZE;
-          yOrX = true;
-          upOrDown = true;
-          facing = "down";
-        }
-        
+      } else if (!(targetPosition.y + TILE_SIZE >= map.height)) {
+        translate = false;
+        targetPosition.y += TILE_SIZE;
+        yOrX = true;
+        upOrDown = true;
+        facing = "down";
       }
       isEvent = false;
       break;
     case "ArrowLeft":
     case "a":
-      if (!(targetPosition.x <= canvasMinWidth * 2)) {
+      if (
+        !(canvasMinWidth <= 0) &&
+        sprite.x + TILE_SIZE <= canvasMaxWidth - canvas.width / 2
+      ) {
+        translate = true;
         targetPosition.x -= TILE_SIZE;
         yOrX = false;
         upOrDown = false;
         facing = "left";
       } else if (!(targetPosition.x <= 0)) {
-        ctx.translate(TILE_SIZE, 0);
-        canvasMaxWidth -= TILE_SIZE;
-        canvasMinWidth -= TILE_SIZE;
+        translate = false;
         targetPosition.x -= TILE_SIZE;
         yOrX = false;
         upOrDown = false;
@@ -387,15 +381,17 @@ function update(event) {
       break;
     case "ArrowRight":
     case "d":
-      if (!(targetPosition.x + TILE_SIZE >= canvasMaxWidth / 2)) {
+      if (
+        !(canvasMaxWidth >= map.width) &&
+        sprite.x >= canvasMaxWidth - canvas.width / 2
+      ) {
+        translate = true;
         targetPosition.x += TILE_SIZE;
         yOrX = false;
         upOrDown = true;
         facing = "right";
       } else if (!(targetPosition.x + TILE_SIZE >= map.width)) {
-        ctx.translate(-TILE_SIZE, 0);
-        canvasMaxWidth += TILE_SIZE;
-        canvasMinWidth += TILE_SIZE;
+        translate = false;
         targetPosition.x += TILE_SIZE;
         yOrX = false;
         upOrDown = true;
@@ -427,6 +423,24 @@ function update(event) {
 
     tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
     tileIndexY = Math.floor(targetPosition.y / TILE_SIZE);
+  } else if (translate) {
+    if (!yOrX && upOrDown) {
+      ctx.translate(-TILE_SIZE, 0);
+      canvasMaxWidth += TILE_SIZE;
+      canvasMinWidth += TILE_SIZE;
+    } else if (!yOrX && !upOrDown) {
+      ctx.translate(TILE_SIZE, 0);
+      canvasMaxWidth -= TILE_SIZE;
+      canvasMinWidth -= TILE_SIZE;
+    } else if (yOrX && !upOrDown) {
+      ctx.translate(0, TILE_SIZE);
+      canvasMinHeight -= TILE_SIZE;
+      canvasMaxHeight -= TILE_SIZE;
+    } else {
+      ctx.translate(0, -TILE_SIZE);
+      canvasMaxHeight += TILE_SIZE;
+      canvasMinHeight += TILE_SIZE;
+    }
   }
 
   if (
@@ -453,7 +467,6 @@ function update(event) {
     } else {
       eventTileIndex = (tileIndexY + 1) * mapData.width + tileIndexX;
     }
-
   } else {
     balloon.x = -1000000;
     balloon.y = -1000000;
@@ -482,7 +495,7 @@ function getEventTileId(tileIndex) {
 
 function changeTile(tileIndex, newTileId) {
   mapData.layers.forEach((layer) => {
-    if(layer.id == 3) {
+    if (layer.id == 3) {
       layer.data[tileIndex] = newTileId;
       eventInUse[tileIndex] = false;
     }
@@ -519,7 +532,7 @@ function drawBalloon() {
       TILE_SIZE
     );
 
-    if(isPaused) {
+    if (isPaused) {
       cancelAnimationFrame(animate);
     } else {
       requestAnimationFrame(animate);
@@ -533,7 +546,10 @@ function gameLoop() {
   if (!isPaused) {
     drawMap();
     drawLayerCount = 0;
-    if(inventory.items[inventory.activeItem] != undefined && inventory.items[inventory.activeItem].quantity > 999) {
+    if (
+      inventory.items[inventory.activeItem] != undefined &&
+      inventory.items[inventory.activeItem].quantity > 999
+    ) {
       inventory.items[inventory.activeItem].quantity = 999;
       inventory.useActiveItem();
     }
@@ -549,92 +565,93 @@ function eventPicker(tileIndex) {
 
   let eventTileId = getEventTileId(tileIndex);
 
-  if(isCropTile(tileIndex)) {
-    if(eventInUse[tileIndex] == true) {
+  if (isCropTile(tileIndex)) {
+    if (eventInUse[tileIndex] == true) {
       return;
     } else {
-      if(eventTileId == 242 && item.name == "Carrot") {
+      if (eventTileId == 242 && item.name == "Carrot") {
         item.quantity -= 1;
         inventory.useActiveItem();
         plantCarrot(tileIndex);
-      } else if(eventTileId == 242 && item.name== "Cabbage") {
+      } else if (eventTileId == 242 && item.name == "Cabbage") {
         item.quantity -= 1;
         inventory.useActiveItem();
         plantCabbage(tileIndex);
-      } else if(eventTileId == 242 && item.name== "Grape") {
+      } else if (eventTileId == 242 && item.name == "Grape") {
         item.quantity -= 1;
         inventory.useActiveItem();
         plantGrape(tileIndex);
-      } else if(eventTileId == 242 && item.name== "Wheat") {
+      } else if (eventTileId == 242 && item.name == "Wheat") {
         item.quantity -= 1;
         inventory.useActiveItem();
         plantWheat(tileIndex);
-      } else if(eventTileId == 234 && item.name== "Watering Can") {
+      } else if (eventTileId == 234 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterCarrot", tileIndex, 5);
-      } else if(eventTileId == 198 && item.name== "Watering Can") {
+      } else if (eventTileId == 198 && item.name == "Watering Can") {
         startTime = Date.now();
-        checkTime(startTime, "waterCarrot2", tileIndex, 5);  
-      } else if(eventTileId == 210 && item.name== "Watering Can") {
+        checkTime(startTime, "waterCarrot2", tileIndex, 5);
+      } else if (eventTileId == 210 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterCarrot3", tileIndex, 5);
-      } else if(eventTileId == 235 && item.name== "Watering Can") {
+      } else if (eventTileId == 235 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterCabbage", tileIndex, 5);
-      } else if(eventTileId == 199 && item.name== "Watering Can") {
+      } else if (eventTileId == 199 && item.name == "Watering Can") {
         startTime = Date.now();
-        checkTime(startTime, "waterCabbage2", tileIndex, 5);  
-      } else if(eventTileId == 211 && item.name== "Watering Can") {
+        checkTime(startTime, "waterCabbage2", tileIndex, 5);
+      } else if (eventTileId == 211 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterCabbage3", tileIndex, 5);
-      } else if(eventTileId == 236 && item.name== "Watering Can") {
+      } else if (eventTileId == 236 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterGrape", tileIndex, 5);
-      } else if(eventTileId == 200 && item.name== "Watering Can") {
+      } else if (eventTileId == 200 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterGrape2", tileIndex, 5);
-      } else if(eventTileId == 212 && item.name== "Watering Can") {
+      } else if (eventTileId == 212 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterGrape3", tileIndex, 5);
-      } else if(eventTileId == 237 && item.name== "Watering Can") {
+      } else if (eventTileId == 237 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterWheat", tileIndex, 5);
-      } else if(eventTileId == 201 && item.name== "Watering Can") {
+      } else if (eventTileId == 201 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterWheat2", tileIndex, 5);
-      } else if(eventTileId == 213 && item.name== "Watering Can") {
+      } else if (eventTileId == 213 && item.name == "Watering Can") {
         startTime = Date.now();
         checkTime(startTime, "waterWheat3", tileIndex, 5);
-      } else if(eventTileId == 222) {
-        for(let i = 0; i < 4; i++) {
+      } else if (eventTileId == 222) {
+        for (let i = 0; i < 4; i++) {
           inventory.add(items[1]);
         }
         harvestCarrot(tileIndex);
-      } else if(eventTileId == 223) {
-        for(let i = 0; i < 4; i++) {
+      } else if (eventTileId == 223) {
+        for (let i = 0; i < 4; i++) {
           inventory.add(items[2]);
         }
         harvestCabbage(tileIndex);
-      } else if(eventTileId == 224) {
-        for(let i = 0; i < 4; i++) {
+      } else if (eventTileId == 224) {
+        for (let i = 0; i < 4; i++) {
           inventory.add(items[3]);
         }
         harvestGrape(tileIndex);
-      } else if(eventTileId == 225) {
-        for(let i = 0; i < 4; i++) {
+      } else if (eventTileId == 225) {
+        for (let i = 0; i < 4; i++) {
           inventory.add(items[4]);
         }
         harvestWheat(tileIndex);
       }
     }
-  } else if(eventTileId == 435) {
+  } else if (eventTileId == 435) {
     signEvent(tileIndex);
   }
 }
 
 function signEvent(tileIndex) {
-  if(tileIndex == 2376) {
-    document.getElementById("text").innerHTML = "The sign reads: \"This is a test\"";
+  if (tileIndex == 2376) {
+    document.getElementById("text").innerHTML =
+      'The sign reads: "This is a test"';
   }
 }
 
@@ -703,7 +720,7 @@ function waterWheatThree(tileIndex) {
 }
 
 function harvestCarrot(tileIndex) {
-  changeTile(tileIndex, 242)
+  changeTile(tileIndex, 242);
 }
 
 function harvestCabbage(tileIndex) {
@@ -723,8 +740,8 @@ function checkTime(startTime, name, tileIndex, waitTime) {
 
   eventInUse[tileIndex] = true;
 
-  if(currentTime - startTime >= waitTime * 1000) {
-    cancelAnimationFrame(checkTime)
+  if (currentTime - startTime >= waitTime * 1000) {
+    cancelAnimationFrame(checkTime);
     switch (name) {
       case "waterCarrot":
         waterCarrot(tileIndex);
@@ -764,9 +781,9 @@ function checkTime(startTime, name, tileIndex, waitTime) {
         break;
     }
   } else {
-    requestAnimationFrame(function() {
-      checkTime(startTime, name, tileIndex, waitTime)
-    })
+    requestAnimationFrame(function () {
+      checkTime(startTime, name, tileIndex, waitTime);
+    });
   }
 }
 
