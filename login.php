@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="password" id="password" name="password" required><br>
 
       <input type="submit" class="submitButton" value="Login">
-      <button class="submitButton" onclick="window.location.href = 'createAccount.php';">Create Account</button>
+      <button type="button" class="submitButton" onclick="window.location.href = 'createAccount.php';">Create Account</button>
 
     </form>
     <?php

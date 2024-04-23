@@ -49,7 +49,7 @@ window.onload = function() {
 let TILE_SIZE = 48;
 
 let map = {
-  jsonPath: "js/sample.json",
+  jsonPath: "js/map.json",
   height: 0,
   width: 0,
 };
@@ -303,43 +303,68 @@ function update(event) {
   switch (event.key) {
     case "ArrowUp":
     case "w":
-      if (!(targetPosition.y <= canvasMinHeight)) {
-        targetPosition.y -= TILE_SIZE;
-        yOrX = true;
-        upOrDown = false;
-        facing = "up";
-      } else if (!(targetPosition.y <= 0)) {
+      if(!(targetPosition.y <= 0) && targetPosition.y <= canvasMinHeight * 2) {
         ctx.translate(0, TILE_SIZE);
         canvasMinHeight -= TILE_SIZE;
         canvasMaxHeight -= TILE_SIZE;
+        console.log(canvasMaxHeight);
+        console.log(canvasMinHeight);
         targetPosition.y -= TILE_SIZE;
-        yOrX = true;
-        upOrDown = false;
-        facing = "up";
+      } else if( !(targetPosition.y <= 0)) {
+        targetPosition.y -= TILE_SIZE;
       }
+      // if (!(targetPosition.y <= canvasMinHeight * 2) && !((canvasMinHeight <= 0))) {
+      //   console.log("canvasMinHeight * 2: " + canvasMinHeight * 2)
+      //   console.log("sprite.y - TILE_SIZE: " + (sprite.y - TILE_SIZE))
+      //   targetPosition.y -= TILE_SIZE;
+      //   yOrX = true;
+      //   upOrDown = false;
+      //   facing = "up";
+      // } else if (!(targetPosition.y <= 0) && !((canvasMinHeight <= 0))) {
+        // ctx.translate(0, TILE_SIZE);
+        // canvasMinHeight -= TILE_SIZE / 2;
+        // canvasMaxHeight -= TILE_SIZE;
+        // targetPosition.y -= TILE_SIZE;
+      //   console.log("canvasMinHeight * 2: " + canvasMinHeight * 2)
+      //   console.log("sprite.y - TILE_SIZE: " + (sprite.y - TILE_SIZE))
+      //   yOrX = true;
+      //   upOrDown = false;
+      //   facing = "up";
+      // }
+      yOrX = true;
+      upOrDown = false;
+      facing = "up";
       isEvent = false;
       break;
     case "ArrowDown":
     case "s":
-      if (!(targetPosition.y + TILE_SIZE >= canvasMaxHeight)) {
+      if (!(targetPosition.y + TILE_SIZE >= canvasMaxHeight / 2)) {
         targetPosition.y += TILE_SIZE;
         yOrX = true;
         upOrDown = true;
         facing = "down";
-      } else if (!(targetPosition.y + TILE_SIZE >= map.height)) {
-        ctx.translate(0, -TILE_SIZE);
-        canvasMaxHeight += TILE_SIZE;
-        canvasMinHeight += TILE_SIZE;
-        targetPosition.y += TILE_SIZE;
-        yOrX = true;
-        upOrDown = true;
-        facing = "down";
+      } else if (!(targetPosition.y + TILE_SIZE >= map.height) && !(canvasMaxWidth >= map.height)) {
+        console.log("the fukc")
+        console.log(map.height)
+          console.log(sprite.y * 2)
+          console.log(canvasMinHeight)
+        if(!((sprite.y) > map.height - canvasMinHeight)) {
+          
+          ctx.translate(0, -TILE_SIZE);
+          canvasMaxHeight += TILE_SIZE;
+          canvasMinHeight += TILE_SIZE;
+          targetPosition.y += TILE_SIZE;
+          yOrX = true;
+          upOrDown = true;
+          facing = "down";
+        }
+        
       }
       isEvent = false;
       break;
     case "ArrowLeft":
     case "a":
-      if (!(targetPosition.x <= canvasMinWidth)) {
+      if (!(targetPosition.x <= canvasMinWidth * 2)) {
         targetPosition.x -= TILE_SIZE;
         yOrX = false;
         upOrDown = false;
@@ -357,7 +382,7 @@ function update(event) {
       break;
     case "ArrowRight":
     case "d":
-      if (!(targetPosition.x + TILE_SIZE >= canvasMaxWidth)) {
+      if (!(targetPosition.x + TILE_SIZE >= canvasMaxWidth / 2)) {
         targetPosition.x += TILE_SIZE;
         yOrX = false;
         upOrDown = true;
@@ -603,7 +628,7 @@ function eventPicker(tileIndex) {
 }
 
 function signEvent(tileIndex) {
-  if(tileIndex == 210) {
+  if(tileIndex == 2376) {
     document.getElementById("text").innerHTML = "The sign reads: \"This is a test\"";
   }
 }

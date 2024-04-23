@@ -53,10 +53,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $inventoryInfo->execute(['userid' => $userId['userid'], 'name' => "Wheat", 'inventoryid' => 4]);
       $playerposInfo->execute(['userid' => $userId['userid'], 'xpos' => 0, 'ypos' => 0]);
 
-      $jsonData = file_get_contents("js/sample.json");
+      $jsonData = file_get_contents("js/map.json");
       $data = json_decode($jsonData, true);
       
-      for($x = 0; $x < 400; $x++) {
+      for($x = 0; $x < 2500; $x++) {
         $sql = "INSERT INTO layerthreetiles (tileindex, userid, tileid) VALUES (:tileindex, :userid, :tileid)";
         $layerthreetilesInfo = $pdo->prepare($sql);
         $layerthreetilesInfo->execute(['tileindex' => $x, 'userid' => $userId['userid'], 'tileid' => $data['layers'][2]['data'][$x]]);
