@@ -1,4 +1,3 @@
-/* Apply font and set background color */
 body {
   font-family: 'Press Start 2P', cursive;
   background-color: #e8f6e8;
@@ -10,7 +9,6 @@ body {
   height: 100vh;
 }
 
-/* Style for the container */
 div {
   background-color: whitesmoke; 
   padding: 40px;
@@ -20,26 +18,22 @@ div {
   width: 500px;
 }
 
-/* Style for the heading */
 h2 {
   margin-bottom: 20px;
   font-size: 24px;
 }
 
-/* Style for the form */
 form {
   text-align: center;
   margin: 0 auto;
   width: 80%;
 }
 
-/* Style for labels */
 label {
   display: block;
   font-size: 18px;
 }
 
-/* Style for input fields */
 input[type="text"],
 input[type="password"] {
   width: 100%; 
@@ -52,7 +46,6 @@ input[type="password"] {
   box-sizing: border-box;
 }
 
-/* Style for the submit button */
 .submitButton {
   background-color: #4CAF50;
   color: white;
