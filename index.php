@@ -46,7 +46,6 @@ $user_data = $loginInfo->fetch(PDO::FETCH_ASSOC);
 	</script>
 	<script src="js/main.js"></script>
 	<script src="js/inventory.js"></script>
-	<script src="js/user.js"></script>
 	<script src="js/menus.js"></script>
 </body>
 
