@@ -209,11 +209,11 @@ class Inventory {
 }
 
 let items = [
-  new Item("Watering Can", "/images/wateringCan.png"),
-  new Item("Carrot", "/images/crops/crop_carrot_SE.png"),
-  new Item("Cabbage", "/images/crops/crop_cabbage.png"),
-  new Item("Grape", "/images/crops/crop_grape.png"),
-  new Item("Wheat", "/images/crops/crop_wheat.png"),
+  new Item("Watering Can", "../images/wateringCan.png"),
+  new Item("Carrot", "../images/crops/crop_carrot_SE.png"),
+  new Item("Cabbage", "../images/crops/crop_cabbage.png"),
+  new Item("Grape", "../images/crops/crop_grape.png"),
+  new Item("Wheat", "../images/crops/crop_wheat.png"),
   // new Item('Corn', '/images/crops/crops_cornStageD_SE.png'),
   // new Item('Melon', '/images/crops/crop_melon_SE.png'),
   // new Item('Pumpkin', '/images/crops/crop_pumpkin_SW.png'),
