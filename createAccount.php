@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			<input type="date" id="dob" name="dob" required><br><br>
 
 			<button type="submit" class="createAccountButton">Create Account</button>
-			<button onclick="window.location.href = 'login.php';" class="createAccountButton">Login</button>
+			<button type="button" onclick="window.location.href = 'login.php';" class="createAccountButton">Login</button>
 		</form>
 		<?php
 		if (isset($error_message)) {

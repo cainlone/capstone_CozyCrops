@@ -6,7 +6,7 @@ let inventoryData;
 let TILE_SIZE = 48;
 
 let map = {
-  jsonPath: "js/map.json",
+  jsonPath: "./js/map.json",
   height: 0,
   width: 0,
 };
@@ -20,9 +20,7 @@ let canvasMaxHeight = canvas.height;
 let canvasMinWidth = 0;
 let canvasMinHeight = 0;
 let loadingCanvasMaxWidth = 0;
-let loadingCanvasMinWidth = 0;
 let loadingCanvasMaxHeight = 0;
-let loadingCanvasMinHeight = 0;
 
 let tileLayerArray = [];
 let eventTileArray = [];
@@ -80,24 +78,20 @@ document.addEventListener("DOMContentLoaded", function () {
         inventoryData = dbData.inventoryData;
 
         loadingCanvasMaxWidth = playerPosData[0].xpos + canvas.width / 2;
-        while (loadingCanvasMaxWidth > map.width) {
-          loadingCanvasMaxWidth -= TILE_SIZE;
-        }
-
-        loadingCanvasMinWidth = playerPosData[0].xpos - canvas.width / 2;
-        while (loadingCanvasMinWidth < 0) {
-          loadingCanvasMinWidth += TILE_SIZE;
-        }
-
         loadingCanvasMaxHeight = playerPosData[0].ypos + canvas.height / 2;
-        while (loadingCanvasMaxHeight > map.height) {
-          loadingCanvasMaxHeight -= TILE_SIZE;
+
+        inventory = new Inventory("inventoryCanvas");
+
+        for (x = 0; x < inventoryData.length; x++) {
+            for (y = 0; y < items.length; y++) {
+                if (items[y].name == inventoryData[x].name) {
+                    inventory.add(items[y]);
+                    items[y].quantity = inventoryData[x].quantity;
+                }
+            }
         }
 
-        loadingCanvasMinHeight = playerPosData[0].ypos - canvas.height / 2;
-        while (loadingCanvasMinHeight < 0) {
-          loadingCanvasMinHeight += TILE_SIZE;
-        }
+        inventory.drawEmptyInventory();
       } else {
         console.error("Request failed with status:", xhr.status);
       }
@@ -114,21 +108,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-window.onload = function () {
-  inventory = new Inventory("inventoryCanvas");
-
-  for (x = 0; x < inventoryData.length; x++) {
-    for (y = 0; y < items.length; y++) {
-      if (items[y].name == inventoryData[x].name) {
-        inventory.add(items[y]);
-        items[y].quantity = inventoryData[x].quantity;
-      }
-    }
-  }
-
-  inventory.drawEmptyInventory();
-};
-
 function extractImageSource(tsxContent) {
   let parser = new DOMParser();
   let xmlDoc = parser.parseFromString(tsxContent, "text/xml");
@@ -138,13 +117,13 @@ function extractImageSource(tsxContent) {
 
 function drawMap() {
   if (loadingGame) {
-    while (canvasMaxWidth <= loadingCanvasMaxWidth) {
+    while (canvasMaxWidth <= loadingCanvasMaxWidth && !(canvasMaxWidth >= map.width)) {
       canvasMaxWidth += TILE_SIZE;
       canvasMinWidth += TILE_SIZE;
       ctx.translate(-TILE_SIZE, 0);
     }
 
-    while (canvasMaxHeight <= loadingCanvasMaxHeight) {
+    while (canvasMaxHeight <= loadingCanvasMaxHeight && !(canvasMaxHeight >= map.height)) {
       canvasMaxHeight += TILE_SIZE;
       canvasMinHeight += TILE_SIZE;
       ctx.translate(0, -TILE_SIZE);
@@ -252,6 +231,14 @@ function fetchJson(jsonPath) {
       mapData = data;
       map.height = mapData.height * TILE_SIZE;
       map.width = mapData.width * TILE_SIZE;
+      
+      while (loadingCanvasMaxWidth > map.width) {
+        loadingCanvasMaxWidth -= TILE_SIZE;
+      }
+      while (loadingCanvasMaxHeight > map.height) {
+        loadingCanvasMaxHeight -= TILE_SIZE;
+      }
+
       let tilesetPromises = mapData.tilesets.map(async (tileset) => {
         let response = await fetch(tileset.source);
         let tsxContent = await response.text();

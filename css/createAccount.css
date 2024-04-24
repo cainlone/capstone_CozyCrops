@@ -37,14 +37,14 @@ label {
 input[type="text"],
 input[type="password"],
 input[type = "date"]{
-width: 100%; 
-margin: 0 auto; 
-display: block;
-padding: 10px;
-font-size: 18px;
-border-radius: 3px;
-border: 1px solid #ccc;
-box-sizing: border-box;
+  width: 100%; 
+  margin: 0 auto; 
+  display: block;
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 .createAccountButton {

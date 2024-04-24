@@ -117,10 +117,7 @@ function saveGame() {
 
   var xhttp = new XMLHttpRequest();
 
-  console.log("first");
-
   xhttp.onreadystatechange = function () {
-    console.log("second");
     if (this.readyState == 4 && this.status == 200) {
       console.log(this.responseText);
     }
@@ -207,7 +204,6 @@ function drawPauseScreen() {
     canvasMinHeight + TILE_SIZE * 3
   );
 
-  // Text for buttons
   buttons.forEach((button) => {
     if (button.name === "Play Game!") return;
     if (button.hover) {
