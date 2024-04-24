@@ -192,6 +192,20 @@ class Inventory {
     }
     this.drawEmptyInventory();
   }
+
+  //save user progress
+  saveProgress(userId) {
+    localStorage.setItem(`user_${userId}_progress`, (this.items));
+  }
+
+  //load user progress
+  loadProgress(userId) {
+    const savedProgress = localStorage.getItem(`user_${userId}_progress`);
+    if (savedProgress) {
+      this.items = JSON.parse(savedProgress);
+      this.drawEmptyInventory();
+    }
+  }
 }
 
 let items = [
