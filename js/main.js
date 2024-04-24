@@ -20,9 +20,7 @@ let canvasMaxHeight = canvas.height;
 let canvasMinWidth = 0;
 let canvasMinHeight = 0;
 let loadingCanvasMaxWidth = 0;
-let loadingCanvasMinWidth = 0;
 let loadingCanvasMaxHeight = 0;
-let loadingCanvasMinHeight = 0;
 
 let tileLayerArray = [];
 let eventTileArray = [];
@@ -80,24 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
         inventoryData = dbData.inventoryData;
 
         loadingCanvasMaxWidth = playerPosData[0].xpos + canvas.width / 2;
-        while (loadingCanvasMaxWidth > map.width) {
-          loadingCanvasMaxWidth -= TILE_SIZE;
-        }
-
-        loadingCanvasMinWidth = playerPosData[0].xpos - canvas.width / 2;
-        while (loadingCanvasMinWidth < 0) {
-          loadingCanvasMinWidth += TILE_SIZE;
-        }
-
         loadingCanvasMaxHeight = playerPosData[0].ypos + canvas.height / 2;
-        while (loadingCanvasMaxHeight > map.height) {
-          loadingCanvasMaxHeight -= TILE_SIZE;
-        }
 
-        loadingCanvasMinHeight = playerPosData[0].ypos - canvas.height / 2;
-        while (loadingCanvasMinHeight < 0) {
-          loadingCanvasMinHeight += TILE_SIZE;
-        }
       } else {
         console.error("Request failed with status:", xhr.status);
       }
@@ -252,6 +234,14 @@ function fetchJson(jsonPath) {
       mapData = data;
       map.height = mapData.height * TILE_SIZE;
       map.width = mapData.width * TILE_SIZE;
+      
+      while (loadingCanvasMaxWidth > map.width) {
+        loadingCanvasMaxWidth -= TILE_SIZE;
+      }
+      while (loadingCanvasMaxHeight > map.height) {
+        loadingCanvasMaxHeight -= TILE_SIZE;
+      }
+
       let tilesetPromises = mapData.tilesets.map(async (tileset) => {
         let response = await fetch(tileset.source);
         let tsxContent = await response.text();

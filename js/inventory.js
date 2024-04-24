@@ -22,13 +22,6 @@ class Item {
       ctx.drawImage(this, 0, 0, TILE_SIZE, TILE_SIZE);
 
       self.resizedImg = resizedImg;
-
-      console.log(
-        "Resized image dimensions for",
-        self.name + ":",
-        resizedImg.width,
-        resizedImg.height
-      );
     };
     resizedImg.src = this.img.src;
   }
@@ -108,7 +101,6 @@ class Inventory {
   }
 
   remove(item) {
-    console.log(item);
     this.items = this.items.filter((i) => i !== item);
   }
 
