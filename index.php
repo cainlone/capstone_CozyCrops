@@ -20,6 +20,7 @@ $user_data = $loginInfo->fetch(PDO::FETCH_ASSOC);
 
 <head>
 	<meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=no">
 	<title>Cozy Crops</title>
 
 	<link rel="stylesheet" href="css/main.css">
@@ -39,6 +40,14 @@ $user_data = $loginInfo->fetch(PDO::FETCH_ASSOC);
 
 		<div id="currentItem"></div>
 		<div id="text" width="816"></div>
+
+        <div id="mobileMovement">
+            <button class="mobileMovement" id="upButton"> < </button>
+            <button class="mobileMovement" id="rightButton"> > </button>
+            <button class="mobileMovement" id="leftButton"> < </button>
+            <button class="mobileMovement" id="downButton"> > </button>
+            <button class="mobileMovement" id="enterButton"> Enter </button>
+        </div>
 	</div>
 
 	<script>

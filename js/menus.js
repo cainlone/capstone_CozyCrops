@@ -284,7 +284,6 @@ function onClickPauseMenu(event) {
 
 function exitGame() {
   saveGame();
-
   document.getElementById("currentItem").innerHTML = "";
   startMenu();
 }

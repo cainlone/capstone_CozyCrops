@@ -1,3 +1,4 @@
+/* Common styles for all devices */
 canvas {
   display: block;
   margin: 10px auto;
@@ -11,8 +12,9 @@ canvas {
 
 #gameContainer {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 70%; /* Initial width */
+  max-width: 800px; /* Maximum width */
+  margin: 0 auto; /* Center the container */
 }
 
 #pauseBtn{
@@ -21,7 +23,7 @@ canvas {
   width: 48px;
   height: 48px;
   top: 10px;
-  right: 10px;
+  right: 0px;
   z-index: 100;
   cursor: pointer;
 }
@@ -33,17 +35,15 @@ canvas {
   justify-content: space-around;
   padding: 10px;
   border-radius: 5px;
-
   position: absolute;
   top: 58px;
   right: 0px;
-  margin: 10px;
+  margin-top: 10px;
   border: 1px solid #000;
 }
 
 #gameContainer button {
   font-family: 'Press Start 2P', cursive;
-  font-size: 12px;
   padding: 10px 10px;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
@@ -63,8 +63,76 @@ canvas {
 }
 
 #text {
-  position: relative;
+  position: absolute;
   text-align: center;
-  bottom: -100px;
+  top: 110%;
+  left: 20%;
+  right: 20%;
   font-size: xx-large;
+}
+
+#mobileMovement {
+  position: absolute;
+  top: 220%;
+  left: 15%;
+  transform: translate(0%, 0%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100px;
+}
+
+.mobileMovement {
+  font-size: 30px;
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  padding: 10px;
+}
+
+#upButton {
+  transform: rotate(90deg);
+  margin-bottom: 320px;
+}
+
+#leftButton {
+  margin-right: 320px;
+}
+
+#rightButton {
+  margin-left: 320px;
+}
+
+#downButton {
+  transform: rotate(90deg);
+}
+
+#enterButton {
+  width: 400px;
+  left: 340%
+}
+
+/* Styles for computers (min-width: 1024px) */
+@media screen and (min-width: 64rem) {
+  #gameContainer {
+    width: 60%;
+  }
+}
+
+/* Styles for tablets (min-width: 600px) and (max-width: 1023px) */
+@media screen and (min-width: 37.5rem) and (max-width: 63.9375rem) {
+  #gameContainer {
+    width: 100%;
+    right: 1%;
+  }
+}
+
+/* Styles for phones (max-width: 599px) */
+@media screen and (max-width: 37.4375rem) {
+  #gameContainer {
+    width: 100%;
+    right: 1%;
+  }
 }
