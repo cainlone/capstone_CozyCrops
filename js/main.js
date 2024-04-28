@@ -22,6 +22,12 @@ let canvasMinHeight = 0;
 let loadingCanvasMaxWidth = 0;
 let loadingCanvasMaxHeight = 0;
 
+let rightButton = document.getElementById("rightButton");
+let leftButton = document.getElementById("leftButton");
+let upButton = document.getElementById("upButton");
+let downButton = document.getElementById("downButton");
+let enterButton = document.getElementById("enterButton");
+
 let tileLayerArray = [];
 let eventTileArray = [];
 let frameDurations = [];
@@ -279,7 +285,7 @@ function fetchJson(jsonPath) {
     .catch((error) => console.error("Error loading map:", error));
 }
 
-function updatePosition() {
+function updatePosition(translate, yOrX, upOrDown) {
   let dx = targetPosition.x - sprite.x;
   let dy = targetPosition.y - sprite.y;
   let vx = Math.sign(dx) * Math.min(Math.abs(dx), sprite.speed);
@@ -287,13 +293,40 @@ function updatePosition() {
   sprite.x += vx;
   sprite.y += vy;
 
+    if (translate) {
+        if (!yOrX && upOrDown) {
+        ctx.translate(-vx, 0);
+        canvasMaxWidth += vx;
+        canvasMinWidth += vx;
+        } else if (!yOrX && !upOrDown) {
+        ctx.translate(-vx, 0);
+        canvasMaxWidth += vx;
+        canvasMinWidth += vx;
+        } else if (yOrX && !upOrDown) {
+        ctx.translate(0, -vy);
+        canvasMinHeight += vy;
+        canvasMaxHeight += vy;
+        } else {
+        ctx.translate(0, -vy);
+        canvasMaxHeight += vy;
+        canvasMinHeight += vy;
+        }
+    }
+
   window.removeEventListener("keydown", update);
+  rightButton.removeEventListener("mousedown", update);
+  leftButton.removeEventListener("mousedown", update);
+  upButton.removeEventListener("mousedown", update);
+  downButton.removeEventListener("mousedown", update);
+  enterButton.removeEventListener("mousedown", update);
 
   if (sprite.x === targetPosition.x && sprite.y === targetPosition.y) {
     return;
   }
 
-  requestAnimationFrame(updatePosition);
+  requestAnimationFrame(function() {
+    updatePosition(translate, yOrX, upOrDown);
+  });
 }
 
 function update(event) {
@@ -305,9 +338,10 @@ function update(event) {
 
   document.getElementById("text").innerHTML = "";
 
-  switch (event.key) {
+  switch (event.key || event.target.id) {
     case "ArrowUp":
     case "w":
+    case "upButton":
       if (
         !(canvasMinHeight <= 0) &&
         sprite.y + TILE_SIZE <= canvasMaxHeight - canvas.height / 2
@@ -328,6 +362,7 @@ function update(event) {
       break;
     case "ArrowDown":
     case "s":
+    case "downButton":
       if (
         !(canvasMaxHeight >= map.height) &&
         sprite.y >= canvasMaxHeight - canvas.height / 2
@@ -348,6 +383,7 @@ function update(event) {
       break;
     case "ArrowLeft":
     case "a":
+    case "leftButton":
       if (
         !(canvasMinWidth <= 0) &&
         sprite.x + TILE_SIZE <= canvasMaxWidth - canvas.width / 2
@@ -368,6 +404,7 @@ function update(event) {
       break;
     case "ArrowRight":
     case "d":
+    case "rightButton":
       if (
         !(canvasMaxWidth >= map.width) &&
         sprite.x >= canvasMaxWidth - canvas.width / 2
@@ -387,6 +424,7 @@ function update(event) {
       isEvent = false;
       break;
     case "Enter":
+    case "enterButton":
       if (isEvent) {
         eventPicker(eventTileIndex);
       }
@@ -410,24 +448,6 @@ function update(event) {
 
     tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
     tileIndexY = Math.floor(targetPosition.y / TILE_SIZE);
-  } else if (translate) {
-    if (!yOrX && upOrDown) {
-      ctx.translate(-TILE_SIZE, 0);
-      canvasMaxWidth += TILE_SIZE;
-      canvasMinWidth += TILE_SIZE;
-    } else if (!yOrX && !upOrDown) {
-      ctx.translate(TILE_SIZE, 0);
-      canvasMaxWidth -= TILE_SIZE;
-      canvasMinWidth -= TILE_SIZE;
-    } else if (yOrX && !upOrDown) {
-      ctx.translate(0, TILE_SIZE);
-      canvasMinHeight -= TILE_SIZE;
-      canvasMaxHeight -= TILE_SIZE;
-    } else {
-      ctx.translate(0, -TILE_SIZE);
-      canvasMaxHeight += TILE_SIZE;
-      canvasMinHeight += TILE_SIZE;
-    }
   }
 
   if (
@@ -459,7 +479,7 @@ function update(event) {
     balloon.y = -1000000;
   }
 
-  updatePosition();
+  updatePosition(translate, yOrX, upOrDown);
 }
 
 function getTileLayerId(tileIndexX, tileIndexY) {
@@ -542,6 +562,11 @@ function gameLoop() {
     }
     inventory.drawEmptyInventory();
     window.addEventListener("keydown", update);
+    rightButton.addEventListener("mousedown", update);
+    leftButton.addEventListener("mousedown", update);
+    upButton.addEventListener("mousedown", update);
+    downButton.addEventListener("mousedown", update);
+    enterButton.addEventListener("mousedown", update);
     requestAnimationFrame(gameLoop);
   }
 }
