@@ -57,10 +57,10 @@ const animations = {
 	faceUp: [10]
 };
 
-let playerCurrentAnimation = animations.down; // Initial animation
-let playerCurrentFrameIndex = 0; // Initial frame index
-let playerFrameCount = 0; // Frame count for animation
-const desiredFrameCount = 70; // Adjust as needed
+let playerCurrentAnimation = animations.down;
+let playerCurrentFrameIndex = 0;
+let playerFrameCount = 0;
+const desiredFrameCount = 70;
 
 let sprite = {
   x: 1152,
@@ -171,16 +171,6 @@ function drawMap() {
       drawLayer(layer);
     }
   });
-
-	playerFrameCount++;
-
-  // Check if it's time to switch frames
-  if (playerFrameCount >= desiredFrameCount) {
-    // Increment frame index
-    playerCurrentFrameIndex = (playerCurrentFrameIndex + 1) % playerCurrentAnimation.length;
-    // Reset frame count
-    playerFrameCount = 0;
-  }
 
 	drawSprite();
 
@@ -391,14 +381,14 @@ function update(event) {
         yOrX = true;
         upOrDown = false;
         facing = "up";
-				updateSpriteAnimation("up");
+        updateSpriteAnimation("up");
       } else if (!(targetPosition.y <= 0)) {
         translate = false;
         targetPosition.y -= TILE_SIZE;
         yOrX = true;
         upOrDown = false;
         facing = "up";
-				updateSpriteAnimation("up");
+        updateSpriteAnimation("up");
       }
       isEvent = false;
       break;
@@ -414,14 +404,14 @@ function update(event) {
         yOrX = true;
         upOrDown = true;
         facing = "down";
-				updateSpriteAnimation("down");
+        updateSpriteAnimation("down");
       } else if (!(targetPosition.y + TILE_SIZE >= map.height)) {
         translate = false;
         targetPosition.y += TILE_SIZE;
         yOrX = true;
         upOrDown = true;
         facing = "down";
-				updateSpriteAnimation("down");
+        updateSpriteAnimation("down");
       }
       isEvent = false;
       break;
@@ -437,14 +427,14 @@ function update(event) {
         yOrX = false;
         upOrDown = false;
         facing = "left";
-				updateSpriteAnimation("left");
+        updateSpriteAnimation("left");
       } else if (!(targetPosition.x <= 0)) {
         translate = false;
         targetPosition.x -= TILE_SIZE;
         yOrX = false;
         upOrDown = false;
         facing = "left";
-				updateSpriteAnimation("left");
+        updateSpriteAnimation("left");
       }
       isEvent = false;
       break;
@@ -460,14 +450,14 @@ function update(event) {
         yOrX = false;
         upOrDown = true;
         facing = "right";
-				updateSpriteAnimation("right");
+        updateSpriteAnimation("right");
       } else if (!(targetPosition.x + TILE_SIZE >= map.width)) {
         translate = false;
         targetPosition.x += TILE_SIZE;
         yOrX = false;
         upOrDown = true;
         facing = "right";
-				updateSpriteAnimation("right");
+        updateSpriteAnimation("right");
       }
       isEvent = false;
       break;
@@ -575,12 +565,61 @@ function drawSprite() {
 
 function updateSpriteAnimation(direction) {
 	playerCurrentAnimation = animations[direction];
-	playerCurrentFrameIndex = 0;
 	playerFrameCount = 0;
+  animateSprite();
 }
 
-function stopMoving(event) {
+function animateSprite() {
+
+  playerFrameCount++;
+
+  if (playerFrameCount >= desiredFrameCount) {
+    playerCurrentFrameIndex = (playerCurrentFrameIndex + 1) % playerCurrentAnimation.length;
+    console.log(playerCurrentFrameIndex);
+
+    if(playerCurrentFrameIndex == 4) {
+      playerCurrentFrameIndex = 0;
+    }
+    playerFrameCount = 0;
+    cancelAnimationFrame(animateSprite);
+  } else {
+    requestAnimationFrame(animateSprite);
+  }
+
   
+}
+
+function stopAnimatingSprite(event) {
+  playerCurrentFrameIndex = 0;
+
+  switch (event.key || event.target.id) {
+    case "ArrowUp":
+    case "w":
+    case "upButton":
+      updateSpriteAnimation("faceUp");
+      break;
+    case "ArrowRight":
+    case "d":
+    case "rightButton":
+      updateSpriteAnimation("faceRight");
+      break;
+    case "ArrowLeft":
+    case "a":
+    case "leftButton":
+      updateSpriteAnimation("faceLeft");
+      break;
+    case "ArrowDown":
+    case "s":
+    case "downButton":
+      updateSpriteAnimation("faceDown");
+      break;
+  }
+  window.removeEventListener("keyup", stopAnimatingSprite);
+  rightButton.removeEventListener("mouseup", stopAnimatingSprite);
+  leftButton.removeEventListener("mouseup", stopAnimatingSprite);
+  upButton.removeEventListener("mouseup", stopAnimatingSprite);
+  downButton.removeEventListener("mouseup", stopAnimatingSprite);
+
 }
 
 function drawBalloon() {
@@ -631,11 +670,16 @@ function gameLoop() {
     }
     inventory.drawEmptyInventory();
     window.addEventListener("keydown", update);
+    window.addEventListener("keyup", stopAnimatingSprite);
     rightButton.addEventListener("mousedown", update);
     leftButton.addEventListener("mousedown", update);
     upButton.addEventListener("mousedown", update);
     downButton.addEventListener("mousedown", update);
     enterButton.addEventListener("mousedown", update);
+    rightButton.addEventListener("mouseup", stopAnimatingSprite);
+    leftButton.addEventListener("mouseup", stopAnimatingSprite);
+    upButton.addEventListener("mouseup", stopAnimatingSprite);
+    downButton.addEventListener("mouseup", stopAnimatingSprite);
     requestAnimationFrame(gameLoop);
   }
 }
