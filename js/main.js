@@ -575,7 +575,6 @@ function animateSprite() {
 
   if (playerFrameCount >= desiredFrameCount) {
     playerCurrentFrameIndex = (playerCurrentFrameIndex + 1) % playerCurrentAnimation.length;
-    console.log(playerCurrentFrameIndex);
 
     if(playerCurrentFrameIndex == 4) {
       playerCurrentFrameIndex = 0;
@@ -590,36 +589,33 @@ function animateSprite() {
 }
 
 function stopAnimatingSprite(event) {
-  playerCurrentFrameIndex = 0;
-
   switch (event.key || event.target.id) {
     case "ArrowUp":
     case "w":
     case "upButton":
+      playerCurrentFrameIndex = 0;
       updateSpriteAnimation("faceUp");
       break;
     case "ArrowRight":
     case "d":
     case "rightButton":
+      playerCurrentFrameIndex = 0;
       updateSpriteAnimation("faceRight");
       break;
     case "ArrowLeft":
     case "a":
     case "leftButton":
+      playerCurrentFrameIndex = 0;
       updateSpriteAnimation("faceLeft");
       break;
     case "ArrowDown":
     case "s":
     case "downButton":
+      playerCurrentFrameIndex = 0;
       updateSpriteAnimation("faceDown");
       break;
   }
   window.removeEventListener("keyup", stopAnimatingSprite);
-  rightButton.removeEventListener("mouseup", stopAnimatingSprite);
-  leftButton.removeEventListener("mouseup", stopAnimatingSprite);
-  upButton.removeEventListener("mouseup", stopAnimatingSprite);
-  downButton.removeEventListener("mouseup", stopAnimatingSprite);
-
 }
 
 function drawBalloon() {
@@ -676,10 +672,6 @@ function gameLoop() {
     upButton.addEventListener("mousedown", update);
     downButton.addEventListener("mousedown", update);
     enterButton.addEventListener("mousedown", update);
-    rightButton.addEventListener("mouseup", stopAnimatingSprite);
-    leftButton.addEventListener("mouseup", stopAnimatingSprite);
-    upButton.addEventListener("mouseup", stopAnimatingSprite);
-    downButton.addEventListener("mouseup", stopAnimatingSprite);
     requestAnimationFrame(gameLoop);
   }
 }
