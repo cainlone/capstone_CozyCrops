@@ -40,12 +40,35 @@ let cropTileOptions = [
 let layerThree = [];
 let eventInUse = [];
 
+let spriteImage = new Image();
+spriteImage.src = '../images/character.png';
+let spriteRows = 4;
+let spriteCols = 3;
+let drawSpriteCount = 1;
+
+const animations = {
+  down: [0, 1, 2, 1],
+  left: [3, 4, 5, 4],
+  right: [6, 7, 8, 7],
+  up: [9, 10, 11, 10],
+	faceDown: [1],
+	faceLeft: [4],
+	faceRight: [7],
+	faceUp: [10]
+};
+
+let playerCurrentAnimation = animations.down; // Initial animation
+let playerCurrentFrameIndex = 0; // Initial frame index
+let playerFrameCount = 0; // Frame count for animation
+const desiredFrameCount = 70; // Adjust as needed
+
 let sprite = {
   x: 1152,
   y: 2352,
   width: TILE_SIZE,
   height: TILE_SIZE,
-  speed: 2,
+  speed: 1,
+	filePath: spriteImage.src,
 };
 
 let targetPosition = { x: sprite.x, y: sprite.y };
@@ -89,12 +112,12 @@ document.addEventListener("DOMContentLoaded", function () {
         inventory = new Inventory("inventoryCanvas");
 
         for (x = 0; x < inventoryData.length; x++) {
-            for (y = 0; y < items.length; y++) {
-                if (items[y].name == inventoryData[x].name) {
-                    inventory.add(items[y]);
-                    items[y].quantity = inventoryData[x].quantity;
-                }
+          for (y = 0; y < items.length; y++) {
+            if (items[y].name == inventoryData[x].name) {
+              inventory.add(items[y]);
+              items[y].quantity = inventoryData[x].quantity;
             }
+          }
         }
 
         inventory.drawEmptyInventory();
@@ -123,13 +146,19 @@ function extractImageSource(tsxContent) {
 
 function drawMap() {
   if (loadingGame) {
-    while (canvasMaxWidth <= loadingCanvasMaxWidth && !(canvasMaxWidth >= map.width)) {
+    while (
+      canvasMaxWidth <= loadingCanvasMaxWidth &&
+      !(canvasMaxWidth >= map.width)
+    ) {
       canvasMaxWidth += TILE_SIZE;
       canvasMinWidth += TILE_SIZE;
       ctx.translate(-TILE_SIZE, 0);
     }
 
-    while (canvasMaxHeight <= loadingCanvasMaxHeight && !(canvasMaxHeight >= map.height)) {
+    while (
+      canvasMaxHeight <= loadingCanvasMaxHeight &&
+      !(canvasMaxHeight >= map.height)
+    ) {
       canvasMaxHeight += TILE_SIZE;
       canvasMinHeight += TILE_SIZE;
       ctx.translate(0, -TILE_SIZE);
@@ -142,7 +171,18 @@ function drawMap() {
       drawLayer(layer);
     }
   });
-  drawSprite();
+
+	playerFrameCount++;
+
+  // Check if it's time to switch frames
+  if (playerFrameCount >= desiredFrameCount) {
+    // Increment frame index
+    playerCurrentFrameIndex = (playerCurrentFrameIndex + 1) % playerCurrentAnimation.length;
+    // Reset frame count
+    playerFrameCount = 0;
+  }
+
+	drawSprite();
 
   mapData.layers.forEach((layer) => {
     if (layer.type === "tilelayer" && layer.id !== 1 && layer.id !== 2) {
@@ -237,7 +277,7 @@ function fetchJson(jsonPath) {
       mapData = data;
       map.height = mapData.height * TILE_SIZE;
       map.width = mapData.width * TILE_SIZE;
-      
+
       while (loadingCanvasMaxWidth > map.width) {
         loadingCanvasMaxWidth -= TILE_SIZE;
       }
@@ -293,25 +333,25 @@ function updatePosition(translate, yOrX, upOrDown) {
   sprite.x += vx;
   sprite.y += vy;
 
-    if (translate) {
-        if (!yOrX && upOrDown) {
-        ctx.translate(-vx, 0);
-        canvasMaxWidth += vx;
-        canvasMinWidth += vx;
-        } else if (!yOrX && !upOrDown) {
-        ctx.translate(-vx, 0);
-        canvasMaxWidth += vx;
-        canvasMinWidth += vx;
-        } else if (yOrX && !upOrDown) {
-        ctx.translate(0, -vy);
-        canvasMinHeight += vy;
-        canvasMaxHeight += vy;
-        } else {
-        ctx.translate(0, -vy);
-        canvasMaxHeight += vy;
-        canvasMinHeight += vy;
-        }
+  if (translate) {
+    if (!yOrX && upOrDown) {
+      ctx.translate(-vx, 0);
+      canvasMaxWidth += vx;
+      canvasMinWidth += vx;
+    } else if (!yOrX && !upOrDown) {
+      ctx.translate(-vx, 0);
+      canvasMaxWidth += vx;
+      canvasMinWidth += vx;
+    } else if (yOrX && !upOrDown) {
+      ctx.translate(0, -vy);
+      canvasMinHeight += vy;
+      canvasMaxHeight += vy;
+    } else {
+      ctx.translate(0, -vy);
+      canvasMaxHeight += vy;
+      canvasMinHeight += vy;
     }
+  }
 
   window.removeEventListener("keydown", update);
   rightButton.removeEventListener("mousedown", update);
@@ -351,12 +391,14 @@ function update(event) {
         yOrX = true;
         upOrDown = false;
         facing = "up";
+				updateSpriteAnimation("up");
       } else if (!(targetPosition.y <= 0)) {
         translate = false;
         targetPosition.y -= TILE_SIZE;
         yOrX = true;
         upOrDown = false;
         facing = "up";
+				updateSpriteAnimation("up");
       }
       isEvent = false;
       break;
@@ -372,12 +414,14 @@ function update(event) {
         yOrX = true;
         upOrDown = true;
         facing = "down";
+				updateSpriteAnimation("down");
       } else if (!(targetPosition.y + TILE_SIZE >= map.height)) {
         translate = false;
         targetPosition.y += TILE_SIZE;
         yOrX = true;
         upOrDown = true;
         facing = "down";
+				updateSpriteAnimation("down");
       }
       isEvent = false;
       break;
@@ -393,12 +437,14 @@ function update(event) {
         yOrX = false;
         upOrDown = false;
         facing = "left";
+				updateSpriteAnimation("left");
       } else if (!(targetPosition.x <= 0)) {
         translate = false;
         targetPosition.x -= TILE_SIZE;
         yOrX = false;
         upOrDown = false;
         facing = "left";
+				updateSpriteAnimation("left");
       }
       isEvent = false;
       break;
@@ -414,12 +460,14 @@ function update(event) {
         yOrX = false;
         upOrDown = true;
         facing = "right";
+				updateSpriteAnimation("right");
       } else if (!(targetPosition.x + TILE_SIZE >= map.width)) {
         translate = false;
         targetPosition.x += TILE_SIZE;
         yOrX = false;
         upOrDown = true;
         facing = "right";
+				updateSpriteAnimation("right");
       }
       isEvent = false;
       break;
@@ -428,6 +476,13 @@ function update(event) {
       if (isEvent) {
         eventPicker(eventTileIndex);
       }
+			break;
+		case "Shift":
+			if(sprite.speed == 1) {
+				sprite.speed = 2;
+			} else {
+				sprite.speed = 1;
+			}
   }
 
   tileIndexX = Math.floor(targetPosition.x / TILE_SIZE);
@@ -510,8 +565,22 @@ function changeTile(tileIndex, newTileId) {
 }
 
 function drawSprite() {
-  ctx.fillStyle = "red";
-  ctx.fillRect(sprite.x, sprite.y, sprite.width, sprite.height);
+	const frameIndex = playerCurrentAnimation[playerCurrentFrameIndex];
+
+	let col = frameIndex % spriteCols;
+	let row = Math.floor(frameIndex / spriteCols)
+
+  ctx.drawImage(spriteImage, col * sprite.width, row * sprite.height, sprite.width, sprite.height, sprite.x, sprite.y, sprite.width, sprite.height);
+}
+
+function updateSpriteAnimation(direction) {
+	playerCurrentAnimation = animations[direction];
+	playerCurrentFrameIndex = 0;
+	playerFrameCount = 0;
+}
+
+function stopMoving(event) {
+  
 }
 
 function drawBalloon() {
@@ -663,7 +732,7 @@ function eventPicker(tileIndex) {
 function signEvent(tileIndex) {
   if (tileIndex == 2376) {
     document.getElementById("text").innerHTML =
-      'The sign reads: "This is a test"';
+      'The sign reads: "Press \'Shift\' to toggle sprint. Unless you\'re on mobile. In which case, have fun being slow."';
   }
 }
 
