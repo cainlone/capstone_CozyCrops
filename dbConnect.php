@@ -1,7 +1,7 @@
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=localhost:3306;dbname=cozycrops', 'itsd', 'mysqlmysql');
+	$pdo = new PDO('mysql:host=sql310.infinityfree.com;dbname=if0_36424514_cozycrops', 'if0_36424514', '4MyINFINITYFREE');
 
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$pdo->exec('SET NAMES "utf8"');
